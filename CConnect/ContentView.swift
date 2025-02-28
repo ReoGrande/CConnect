@@ -12,25 +12,34 @@ import CalendarView
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @State var date = Date()
-    @State var dateSet : Set<DateComponents> = []
-
+    @State var date = DateComponents()
+    let currentDate = DateComponents()
+    @State var dateSet : [DateComponents] = []
+    @State var dateSelected : Bool = true
+    
+    var currentDayIndex : Int {
+        currentDate.day ?? 3
+    }
+    
     var body: some View {
         NavigationStack {
             Section {
-                CalendarView()
-                    .decorating([DateComponents(day: 16)]) {
-                        Text("Day")
+                CalendarView(selection: $dateSet)
+                    .decorating([DateComponents(day: currentDayIndex)]) {
+                        Text("Date")
                     }
+                    .selectable { dateComponents in
+                        dateComponents.day! > currentDayIndex
+                    }
+                
             }
             .navigationTitle("Calendar")
             .navigationBarTitleDisplayMode(.inline)
-
         }
     }
-        
+    
 }
 
 #Preview {
-    ContentView()
+    ContentView(dateSet: [])
 }
