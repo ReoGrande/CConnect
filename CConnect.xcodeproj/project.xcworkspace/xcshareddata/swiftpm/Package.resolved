@@ -1,0 +1,15 @@
+{
+  "originHash" : "a23322bc1e2536c546275aad114b20fb48b144dddf770f9dbbbe06da304c0f69",
+  "pins" : [
+    {
+      "identity" : "calendarview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AllanJuenemann/CalendarView.git",
+      "state" : {
+        "revision" : "a0f913aff2bf63a808e60c9490fe034043613c5f",
+        "version" : "2.1.2"
+      }
+    }
+  ],
+  "version" : 3
+}

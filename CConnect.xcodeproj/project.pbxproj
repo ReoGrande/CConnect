@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E48EEBD32D715B0A003D1B37 /* CalendarView in Frameworks */ = {isa = PBXBuildFile; productRef = E48EEBD22D715B0A003D1B37 /* CalendarView */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E48EEBB32D715370003D1B37 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E48EEBD32D715B0A003D1B37 /* CalendarView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 				E48EEBA12D71536E003D1B37 /* CConnect */,
 				E48EEBB52D715370003D1B37 /* CConnectTests */,
 				E48EEBBF2D715370003D1B37 /* CConnectUITests */,
+				E48EEBD12D715B0A003D1B37 /* Frameworks */,
 				E48EEBA02D71536E003D1B37 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +96,13 @@
 				E48EEBBC2D715370003D1B37 /* CConnectUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E48EEBD12D715B0A003D1B37 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +125,7 @@
 			);
 			name = CConnect;
 			packageProductDependencies = (
+				E48EEBD22D715B0A003D1B37 /* CalendarView */,
 			);
 			productName = CConnect;
 			productReference = E48EEB9F2D71536E003D1B37 /* CConnect.app */;
@@ -195,6 +209,9 @@
 			);
 			mainGroup = E48EEB962D71536E003D1B37;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E48EEBD02D715AB6003D1B37 /* XCRemoteSwiftPackageReference "CalendarView" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E48EEBA02D71536E003D1B37 /* Products */;
 			projectDirPath = "";
@@ -591,6 +608,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E48EEBD02D715AB6003D1B37 /* XCRemoteSwiftPackageReference "CalendarView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AllanJuenemann/CalendarView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E48EEBD22D715B0A003D1B37 /* CalendarView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E48EEBD02D715AB6003D1B37 /* XCRemoteSwiftPackageReference "CalendarView" */;
+			productName = CalendarView;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E48EEB972D71536E003D1B37 /* Project object */;
 }
