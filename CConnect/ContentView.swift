@@ -8,36 +8,56 @@
 
 import SwiftUI
 import SwiftData
-import CalendarView
+import MijickCalendarView
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State var date = DateComponents()
-    let currentDate = DateComponents()
+    let currentDate = Helpers.currentDateInDateComponents() // TODO: REMOVE MOCK INFO
     @State var dateSet : [DateComponents] = []
-    @State var dateSelected : Bool = true
+    @State var dateIsSelected : Bool = false
+    @State var eventSelected: EventModel = EventModel.MockCreateEventModel(numberOfPeople: 3, date: Helpers.currentDateInDateComponents()) // TODO: REMOVE MOCK INFO
+    var eventsList: Set<EventModel> = Helpers.MockBuildEventsList() // TODO: REMOVE MOCK INFO
+    @State var EventDestination: AnyView? = nil
+    
     
     var currentDayIndex : Int {
-        currentDate.day ?? 3
+//        print(currentDate.day)
+        return currentDate.day ?? 1
     }
     
     var body: some View {
-        NavigationStack {
+  
             Section {
-                CalendarView(selection: $dateSet)
-                    .decorating([DateComponents(day: currentDayIndex)]) {
-                        Text("Date")
+                    CalendarView(selection: $dateSet)
+                        .decorating([DateComponents(day: currentDayIndex)]) {
+                            Button("Tap") {
+                                print("Button tapped")
+                                dateIsSelected = true
+                            }
+                        }
+                        .selectable { dateComponents in
+                            dateComponents.day! >= currentDayIndex
+                        }
+            }.sheet(isPresented: $dateIsSelected) {
+                if hasEventAtDate(selectedDate: dateSet.first!) {
+                        EventView(Event: $eventSelected)
                     }
-                    .selectable { dateComponents in
-                        dateComponents.day! > currentDayIndex
-                    }
-                
             }
-            .navigationTitle("Calendar")
-            .navigationBarTitleDisplayMode(.inline)
-        }
+        
+        
+        //            EventView(Event: $eventSelected)
     }
     
+    private func hasEventAtDate( selectedDate: DateComponents) -> Bool {
+        var hasDate = false
+        eventsList.forEach { event in
+            if event.date == selectedDate {
+                hasDate = true
+            }
+        }
+        return hasDate
+    }
 }
 
 #Preview {

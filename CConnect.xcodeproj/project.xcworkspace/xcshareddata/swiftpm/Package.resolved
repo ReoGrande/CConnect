@@ -1,13 +1,13 @@
 {
-  "originHash" : "a23322bc1e2536c546275aad114b20fb48b144dddf770f9dbbbe06da304c0f69",
+  "originHash" : "2737a691ef2cfa738ad20539556de037e0e92bd1924a5035b397f68c873a8fc1",
   "pins" : [
     {
       "identity" : "calendarview",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/AllanJuenemann/CalendarView.git",
+      "location" : "https://github.com/Mijick/CalendarView",
       "state" : {
-        "revision" : "a0f913aff2bf63a808e60c9490fe034043613c5f",
-        "version" : "2.1.2"
+        "revision" : "b347587ba39a023b61881158872db9d01a90a9a6",
+        "version" : "1.0.0"
       }
     }
   ],

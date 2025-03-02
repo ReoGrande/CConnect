@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E48EEBD32D715B0A003D1B37 /* CalendarView in Frameworks */ = {isa = PBXBuildFile; productRef = E48EEBD22D715B0A003D1B37 /* CalendarView */; };
+		E47F09E52D75203200F7C796 /* MijickCalendarView in Frameworks */ = {isa = PBXBuildFile; productRef = E47F09E42D75203200F7C796 /* MijickCalendarView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E48EEBD32D715B0A003D1B37 /* CalendarView in Frameworks */,
+				E47F09E52D75203200F7C796 /* MijickCalendarView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,7 +125,7 @@
 			);
 			name = CConnect;
 			packageProductDependencies = (
-				E48EEBD22D715B0A003D1B37 /* CalendarView */,
+				E47F09E42D75203200F7C796 /* MijickCalendarView */,
 			);
 			productName = CConnect;
 			productReference = E48EEB9F2D71536E003D1B37 /* CConnect.app */;
@@ -210,7 +210,7 @@
 			mainGroup = E48EEB962D71536E003D1B37;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				E48EEBD02D715AB6003D1B37 /* XCRemoteSwiftPackageReference "CalendarView" */,
+				E47F09E32D75203200F7C796 /* XCRemoteSwiftPackageReference "CalendarView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E48EEBA02D71536E003D1B37 /* Products */;
@@ -610,21 +610,21 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		E48EEBD02D715AB6003D1B37 /* XCRemoteSwiftPackageReference "CalendarView" */ = {
+		E47F09E32D75203200F7C796 /* XCRemoteSwiftPackageReference "CalendarView" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/AllanJuenemann/CalendarView.git";
+			repositoryURL = "https://github.com/Mijick/CalendarView";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.2;
+				minimumVersion = 1.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		E48EEBD22D715B0A003D1B37 /* CalendarView */ = {
+		E47F09E42D75203200F7C796 /* MijickCalendarView */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E48EEBD02D715AB6003D1B37 /* XCRemoteSwiftPackageReference "CalendarView" */;
-			productName = CalendarView;
+			package = E47F09E32D75203200F7C796 /* XCRemoteSwiftPackageReference "CalendarView" */;
+			productName = MijickCalendarView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
