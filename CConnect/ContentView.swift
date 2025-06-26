@@ -3,7 +3,8 @@
 //  CConnect
 //
 //  Created by Reo Ogundare on 2/27/25.
-//  Credits to: https://swiftpackageindex.com/AllanJuenemann/CalendarView
+//  Credits to: https://swiftpackageindex.com/AllanJuenemann/CalendarView,
+//  https://github.com/Mijick/CalendarView
 //
 
 import SwiftUI
@@ -11,55 +12,55 @@ import SwiftData
 import MijickCalendarView
 
 struct ContentView: View {
+    @Environment(\.openURL) var openURL
     @Environment(\.modelContext) private var modelContext
-    @State var date = DateComponents()
-    let currentDate = Helpers.currentDateInDateComponents() // TODO: REMOVE MOCK INFO
-    @State var dateSet : [DateComponents] = []
-    @State var dateIsSelected : Bool = false
-    @State var eventSelected: EventModel = EventModel.MockCreateEventModel(numberOfPeople: 3, date: Helpers.currentDateInDateComponents()) // TODO: REMOVE MOCK INFO
-    var eventsList: Set<EventModel> = Helpers.MockBuildEventsList() // TODO: REMOVE MOCK INFO
-    @State var EventDestination: AnyView? = nil
-    
-    
-    var currentDayIndex : Int {
-//        print(currentDate.day)
-        return currentDate.day ?? 1
-    }
+    @State var dateRange : MDateRange? = .init()
+    @State var dateSelected : Date? = nil
     
     var body: some View {
-  
-            Section {
-                    CalendarView(selection: $dateSet)
-                        .decorating([DateComponents(day: currentDayIndex)]) {
-                            Button("Tap") {
-                                print("Button tapped")
-                                dateIsSelected = true
-                            }
-                        }
-                        .selectable { dateComponents in
-                            dateComponents.day! >= currentDayIndex
-                        }
-            }.sheet(isPresented: $dateIsSelected) {
-                if hasEventAtDate(selectedDate: dateSet.first!) {
-                        EventView(Event: $eventSelected)
+            
+        NavigationStack {
+            VStack {
+                HStack {
+                    
+                }
+            MCalendarView(selectedDate: $dateSelected, selectedRange: $dateRange) {
+                $0
+                                (...)
+                                .dayView(NewDayView)
+                                .firstWeekday(.wednesday)
+                                .monthLabelToDaysDistance(12)
+                                .weekdaysView(NewWeekdaysView.init)
+                                (...)
+            }
+                Color.secondary
+                    .opacity(0.4)
+                    .ignoresSafeArea()
+                    .overlay(
+                HStack {
+                    NavigationLink {
+                        Text("Announcements")
+                    } label: {
+                        Text("Announcements")
                     }
-            }
-        
-        
-        //            EventView(Event: $eventSelected)
-    }
-    
-    private func hasEventAtDate( selectedDate: DateComponents) -> Bool {
-        var hasDate = false
-        eventsList.forEach { event in
-            if event.date == selectedDate {
-                hasDate = true
-            }
+                    Button("Visit BPVA Online") {
+                        openURL(URL(string: "https://www.buckeyepolevaultacademy.com/")!)
+                    }
+                    NavigationLink {
+                        Text("Settings")
+                    } label: {
+                        Text("Settings")
+                    }
+                }
+                )
+            
+            .frame(minHeight: 25, maxHeight: 50)
         }
-        return hasDate
+            .navigationTitle("BPVA Calendar")
+        }
     }
 }
 
 #Preview {
-    ContentView(dateSet: [])
+    ContentView()
 }
