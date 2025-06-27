@@ -1,0 +1,18 @@
+**README**
+
+By Reo Ogundare
+
+This project is for organization where sessions are needed. Initial offerings will be for simple reference to users of available sessions. Features and polish will be added incrementally.
+
+Organizations in use:
+- Buckeye Pole Vault Academy
+
+
+**Next steps & possible features**
+
+- Make main page for linking to website and navigating to calendar
+- Make Icon and loading screen
+- Hardcode weekly practices and meets independent of current date
+- Change color of circle Dependent on events for day
+
+
