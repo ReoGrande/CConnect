@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension ContentView {
+extension CalendarView {
     struct EventsView: View {
         @Binding var selectedDate: Date?
         let events: [Date: [Event]]
@@ -21,7 +21,7 @@ extension ContentView {
     }
 }
 
-private extension ContentView.EventsView {
+private extension CalendarView.EventsView {
     func createTitle() -> some View {
         Text(title)
             .font(.title)
@@ -36,7 +36,7 @@ private extension ContentView.EventsView {
     }
 }
 
-private extension ContentView.EventsView {
+private extension CalendarView.EventsView {
     func createEventsList(_ events: [Event]) -> some View {
         VStack(spacing: 16) {
             ForEach(events, id: \.self, content: createElement)
@@ -54,7 +54,7 @@ private extension ContentView.EventsView {
     }
 }
 // MARK: Event UI
-private extension ContentView.EventsView {
+private extension CalendarView.EventsView {
     func createColoredIndicator(_ event: Event) -> some View  {
         RoundedRectangle(cornerRadius: 3)
             .fill(event.color)
@@ -73,7 +73,7 @@ private extension ContentView.EventsView {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
-private extension ContentView.EventsView {
+private extension CalendarView.EventsView {
     var title: String {
         guard let selectedDate else { return "" }
         if Date.now.isSame(selectedDate) { return "TODAY" }
@@ -94,5 +94,5 @@ fileprivate extension [Date: [Event]] {
     }
 }
 
-fileprivate typealias Event = ContentView.Event
+fileprivate typealias Event = CalendarView.Event
 

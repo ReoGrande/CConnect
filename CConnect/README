@@ -10,9 +10,9 @@ Organizations in use:
 
 **Next steps & possible features**
 
-- Make main page for linking to website and navigating to calendar
-- Make Icon and loading screen
+- Make main page for linking to website and navigating to calendar (DONE)
 - Hardcode weekly practices and meets independent of current date
+- Make Icon and loading screen
 - Change color of circle Dependent on events for day
 
 
