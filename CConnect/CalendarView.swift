@@ -30,21 +30,25 @@ struct CalendarView: View {
 }
 
 extension CalendarView {
-    struct Event: Equatable, Hashable {
-        let name: String
-        let range: String
-        let color: Color
-    }
 
     func buildDayView(_ date: Date, _ isCurrentMonth: Bool, selectedDate: Binding<Date?>?, range: Binding<MDateRange?>?) -> DV.ColoredCircle {
         return .init(date: date, color: getDateColor(date), isCurrentMonth: isCurrentMonth, selectedDate: selectedDate, selectedRange: nil)
     }
 
     func getDateColor(_ date: Date) -> Color? {
-       let hasSavedEvents = events.first(where: { $0.key.isSame(date) }) != nil
+        guard let hasSavedEvents = events.first(where: { $0.key.isSame(date) })?.value else { return nil }
         print(events)
-//        print(MDateFormatter.getString(from: Date.now, format: "d"))
-        return hasSavedEvents ? .gray : nil
+
+        switch hasSavedEvents.count{
+        case 1:
+            return .red
+        case 2...5:
+            return .gray
+        case 6...Int.max:
+            return .blue
+        default:
+            return nil
+        }
     }
 
     func createEventsView() -> some View {
@@ -65,22 +69,30 @@ extension CalendarView {
     }
 }
 
-// MARK: Helpers
+// MARK: Helper + Mock Events store
 fileprivate extension [Date: [CalendarView.Event]] {
     init() {
-        let events1: [CalendarView.Event] = [
-            .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: .red),
-            .init(name: "Lift", range: "05:30pm - 06:30pm", color: .black),
-            .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: .red)
-        ]
-        let events2: [CalendarView.Event] = [
-            .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: .red),
-            .init(name: "Lift", range: "05:30pm - 06:30pm", color: .black),
-            .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: .red)
-        ]
-        let events3: [CalendarView.Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: .red) ]
         
-        self = [ Date.now: events1, Date.now.add(1, .day): events2, Date.now.add(2, .day): events3 ]
+        var eventsStore: [Date: [CalendarView.Event]] = [:]
+        
+        for i in 0...90 {
+            let currentDay = Date.now.add(i, .day)
+            let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
+            if DayType.isWeekDay(day: dayDescription)  {
+                // Build class times
+                let eventsForDay: [CalendarView.Event] = [
+                    .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: .red),
+                    .init(name: "Lift", range: "05:30pm - 06:30pm", color: .black),
+                    .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: .red)
+                ]
+                eventsStore[currentDay] = eventsForDay
+            } else if DayType(rawValue: dayDescription) == .Sat {
+                // Build meet times
+                let eventsForDay: [CalendarView.Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: .red) ]
+                eventsStore[currentDay] = eventsForDay
+            }
+        }
+        self = eventsStore
     }
 }
 

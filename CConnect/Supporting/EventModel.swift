@@ -7,10 +7,18 @@
 
 import SwiftUI
 
+struct Event: Equatable, Hashable {
+    let name: String
+    let range: String
+    let color: Color
+}
+
 struct EventModel: Hashable {
     private(set) var date: DateComponents
     private(set) var eventName: String
     private(set) var members: [String] // Later to become class/struct for member with roles for coach/athlete
+    private let events: [Date: [Event]] = .init()
+
     
     static func MockCreateEventModel(numberOfPeople: Int, date: DateComponents) -> EventModel {
         var mockEvent = EventModel(date: Calendar.current.dateComponents([.day,.month,.year], from: Date()), eventName: "MockEvent", members: [])
