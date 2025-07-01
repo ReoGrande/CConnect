@@ -18,7 +18,13 @@ struct EventModel: Hashable {
     private(set) var eventName: String
     private(set) var members: [String] // Later to become class/struct for member with roles for coach/athlete
     private let events: [Date: [Event]] = .init()
-
+    /*
+     TODO: EventModel Rebuild
+     - Handle Events
+     - Addition and removal
+     - Saving to Database
+     - Retrieval to EventModel
+     */
     
     static func MockCreateEventModel(numberOfPeople: Int, date: DateComponents) -> EventModel {
         var mockEvent = EventModel(date: Calendar.current.dateComponents([.day,.month,.year], from: Date()), eventName: "MockEvent", members: [])
