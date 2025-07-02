@@ -14,7 +14,6 @@ import MijickCalendarView
 struct ContentView: View {
     var body: some View {
         NavigationStack {
-            
             HomeView()
         }
     }

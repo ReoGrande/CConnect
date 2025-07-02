@@ -15,12 +15,21 @@ import MijickCalendarView
 struct CalendarView: View {
     @State private var dateRange : MDateRange? = .init()
     @State private var dateSelected : Date? = Date.now
-    private let eventsModel: EventsModel = EventsModel.MockCreateEventsModel()
+    @State private var eventsModel: EventsModel = EventsModel.MockCreateEventsModel()
     
     var body: some View {
             VStack {
                 MCalendarView(selectedDate: $dateSelected, selectedRange: nil, configBuilder: configureCalendar)
                     .padding(.horizontal, 24)
+                Spacer()
+                HStack(spacing: 24) {
+                    Button {
+                        print("Add Event")
+                        addEvents()
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
                 Spacer()
                 createEventsView()
                 .padding(.horizontal, 24)
@@ -68,6 +77,17 @@ extension CalendarView {
             .monthsTopPadding(42)
             .monthLabel { ML.Center(month: $0) }
             .dayView(buildDayView)
+    }
+
+    func addEvents() {
+        guard let date = dateSelected else {
+            print("addEvents: Failed to add event")
+            return
+        }
+        DispatchQueue.main.async {
+            eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
+            print(date)
+        }
     }
 }
 

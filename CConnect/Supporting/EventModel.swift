@@ -27,7 +27,9 @@ struct EventsModel: Hashable {
 
     /// Add `events` from `dateToEdit`
     mutating func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) {
-        self.events[dateToEdit]?.append(contentsOf: eventsToAdd)
+        self.events[dateToEdit] = eventsToAdd
+        // TODO: FIX UI FOR ADD EVENTS NOT RESPONDING
+        print(" addEvents EventModel: \(events[dateToEdit])")
     }
 
     /// Removes `events` from `dateToEdit`
@@ -44,7 +46,7 @@ struct EventsModel: Hashable {
     /// Builds Mock Events from default setup
     static func MockCreateEventsModel() -> EventsModel {
         var eventsStore: [Date: [Event]] = [:]
-        
+
         for i in 0...90 {
             let currentDay = Date.now.add(i, .day)
             let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
@@ -65,4 +67,7 @@ struct EventsModel: Hashable {
         return EventsModel(events: eventsStore)
     }
 
+    static func MockEvent() -> Event {
+        .init(name: "Vault Session", range: "06:30am - 08:30am", color: .blue)
+    }
 }
