@@ -13,31 +13,56 @@ struct Event: Equatable, Hashable {
     let color: Color
 }
 
-struct EventModel: Hashable {
-    private(set) var date: DateComponents
-    private(set) var eventName: String
-    private(set) var members: [String] // Later to become class/struct for member with roles for coach/athlete
-    private let events: [Date: [Event]] = .init()
+/// `Model` responsible for storing and mutating `Events`
+struct EventsModel: Hashable {
+    var events: [Date: [Event]] = [:]
+
     /*
      TODO: EventModel Rebuild
-     - Handle Events
-     - Addition and removal
+     - Handle Events (Done)
+     - Addition and removal (Done)
      - Saving to Database
      - Retrieval to EventModel
      */
-    
-    static func MockCreateEventModel(numberOfPeople: Int, date: DateComponents) -> EventModel {
-        var mockEvent = EventModel(date: Calendar.current.dateComponents([.day,.month,.year], from: Date()), eventName: "MockEvent", members: [])
-        
-        for i in 1...10 {
-            mockEvent.addAthlete(athleteToAdd: "Athlete\(i)")
-        }
 
-        return mockEvent
+    /// Add `events` from `dateToEdit`
+    mutating func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) {
+        self.events[dateToEdit]?.append(contentsOf: eventsToAdd)
     }
 
-    mutating func addAthlete(athleteToAdd: String) {
-        members.append(athleteToAdd)
+    /// Removes `events` from `dateToEdit`
+    mutating func removeEvents(dateToEdit: Date, _ eventsToRemove: [Event]) {
+        var mutatingDate = events[dateToEdit]
+
+        mutatingDate?.removeAll(where: { event in
+            eventsToRemove.contains(event)
+        })
+
+        events[dateToEdit] = mutatingDate
+    }
+
+    /// Builds Mock Events from default setup
+    static func MockCreateEventsModel() -> EventsModel {
+        var eventsStore: [Date: [Event]] = [:]
+        
+        for i in 0...90 {
+            let currentDay = Date.now.add(i, .day)
+            let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
+            if DayType.isWeekDay(day: dayDescription)  {
+                // Build class times
+                let eventsForDay: [Event] = [
+                    .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: .red),
+                    .init(name: "Lift", range: "05:30pm - 06:30pm", color: .black),
+                    .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: .red)
+                ]
+                eventsStore[currentDay] = eventsForDay
+            } else if DayType(rawValue: dayDescription) == .Sat {
+                // Build meet times
+                let eventsForDay: [Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: .red) ]
+                eventsStore[currentDay] = eventsForDay
+            }
+        }
+        return EventsModel(events: eventsStore)
     }
 
 }

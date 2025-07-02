@@ -22,8 +22,6 @@ public enum DayType: String {
             return true
         default:
             print("DayType: Error checking weekday")
-            print(day)
-            print(DayType(rawValue: day))
             return true
         }
     }

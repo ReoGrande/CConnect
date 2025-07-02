@@ -11,10 +11,11 @@ import SwiftUI
 import SwiftData
 import MijickCalendarView
 
+/// Builds view for `MKCalendar`
 struct CalendarView: View {
     @State private var dateRange : MDateRange? = .init()
     @State private var dateSelected : Date? = Date.now
-    private let events: [Date: [Event]] = .init()
+    private let eventsModel: EventsModel = EventsModel.MockCreateEventsModel()
     
     var body: some View {
             VStack {
@@ -30,14 +31,16 @@ struct CalendarView: View {
 }
 
 extension CalendarView {
-
     func buildDayView(_ date: Date, _ isCurrentMonth: Bool, selectedDate: Binding<Date?>?, range: Binding<MDateRange?>?) -> DV.ColoredCircle {
         return .init(date: date, color: getDateColor(date), isCurrentMonth: isCurrentMonth, selectedDate: selectedDate, selectedRange: nil)
     }
 
     func getDateColor(_ date: Date) -> Color? {
-        guard let hasSavedEvents = events.first(where: { $0.key.isSame(date) })?.value else { return nil }
-        print(events)
+        guard let hasSavedEvents = eventsModel.events.first(
+                    where: { $0.key.isSame(date) })?.value
+        else { return nil }
+
+//        print("\(date.description) events: \(hasSavedEvents)")
 
         switch hasSavedEvents.count{
         case 1:
@@ -52,7 +55,7 @@ extension CalendarView {
     }
 
     func createEventsView() -> some View {
-        EventsView(selectedDate: $dateSelected, events: events)
+        EventsView(selectedDate: $dateSelected, events: eventsModel.events)
             .padding(24)
             .frame(height: 200)
     }
@@ -65,34 +68,6 @@ extension CalendarView {
             .monthsTopPadding(42)
             .monthLabel { ML.Center(month: $0) }
             .dayView(buildDayView)
-
-    }
-}
-
-// MARK: Helper + Mock Events store
-fileprivate extension [Date: [CalendarView.Event]] {
-    init() {
-        
-        var eventsStore: [Date: [CalendarView.Event]] = [:]
-        
-        for i in 0...90 {
-            let currentDay = Date.now.add(i, .day)
-            let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
-            if DayType.isWeekDay(day: dayDescription)  {
-                // Build class times
-                let eventsForDay: [CalendarView.Event] = [
-                    .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: .red),
-                    .init(name: "Lift", range: "05:30pm - 06:30pm", color: .black),
-                    .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: .red)
-                ]
-                eventsStore[currentDay] = eventsForDay
-            } else if DayType(rawValue: dayDescription) == .Sat {
-                // Build meet times
-                let eventsForDay: [CalendarView.Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: .red) ]
-                eventsStore[currentDay] = eventsForDay
-            }
-        }
-        self = eventsStore
     }
 }
 

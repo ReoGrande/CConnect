@@ -93,6 +93,3 @@ fileprivate extension [Date: [Event]] {
         return self.first(where: { $0.key.isSame(key) })?.value
     }
 }
-
-fileprivate typealias Event = CalendarView.Event
-
