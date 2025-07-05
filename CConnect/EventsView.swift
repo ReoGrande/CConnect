@@ -10,8 +10,8 @@ import SwiftUI
 extension CalendarView {
     struct EventsView: View {
         @Binding var selectedDate: Date?
-        let events: [Date: [Event]]
-        
+        @Binding var events: [Date: [Event]]
+
         var body: some View {
             VStack() {
                 createTitle()
@@ -42,6 +42,7 @@ private extension CalendarView.EventsView {
             ForEach(events, id: \.self, content: createElement)
         }
     }
+
     func createElement(_ event: Event) -> some View {
         HStack(spacing: 10) {
             createColoredIndicator(event)

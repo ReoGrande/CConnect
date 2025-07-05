@@ -25,7 +25,7 @@ struct CalendarView: View {
                 HStack(spacing: 24) {
                     Button {
                         print("Add Event")
-                        addEvents()
+                            addEvents()
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -64,7 +64,7 @@ extension CalendarView {
     }
 
     func createEventsView() -> some View {
-        EventsView(selectedDate: $dateSelected, events: eventsModel.events)
+        EventsView(selectedDate: $dateSelected, events: $eventsModel.events)
             .padding(24)
             .frame(height: 200)
     }
@@ -84,10 +84,11 @@ extension CalendarView {
             print("addEvents: Failed to add event")
             return
         }
+
         DispatchQueue.main.async {
             eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
-            print(date)
         }
+        print(date)
     }
 }
 

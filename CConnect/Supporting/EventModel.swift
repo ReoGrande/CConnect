@@ -14,8 +14,8 @@ struct Event: Equatable, Hashable {
 }
 
 /// `Model` responsible for storing and mutating `Events`
-struct EventsModel: Hashable {
-    var events: [Date: [Event]] = [:]
+class EventsModel {
+    var events: [Date: [Event]]
 
     /*
      TODO: EventModel Rebuild
@@ -24,16 +24,39 @@ struct EventsModel: Hashable {
      - Saving to Database
      - Retrieval to EventModel
      */
+    init(events: [Date : [Event]]) {
+        self.events = events
+    }
+
+    init() {
+        // TODO: MAKE A GENERATED DEFAULTS JSON, RENAME MOCKCREATEEVENTS TO
+        // DefaultEvents
+        self.events = EventsModel.MockCreateEvents()
+    }
 
     /// Add `events` from `dateToEdit`
-    mutating func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) {
-        self.events[dateToEdit] = eventsToAdd
-        // TODO: FIX UI FOR ADD EVENTS NOT RESPONDING
-        print(" addEvents EventModel: \(events[dateToEdit])")
+    func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) {
+        let dateToEditString = MDateFormatter.getString(from: dateToEdit, format: "d MMM y")
+        print("****DATETOEDITv\(dateToEditString)")
+        events.keys.forEach { date in
+            if MDateFormatter.getString(from: date, format: "d MMM y") == dateToEditString {
+                print("\(date)")
+                print(" before addEvents EventModel: \(String(describing: events[date]))")
+                var ev = events[date]
+                ev?.append(eventsToAdd[0])
+                events[date] = ev
+
+                // TODO: FIX UI FOR ADD EVENTS NOT RESPONDING
+                print(" addEvents EventModel: \(String(describing: events[date]))")
+                return
+            }
+        }
+
+        events[dateToEdit] = eventsToAdd
     }
 
     /// Removes `events` from `dateToEdit`
-    mutating func removeEvents(dateToEdit: Date, _ eventsToRemove: [Event]) {
+    func removeEvents(dateToEdit: Date, _ eventsToRemove: [Event]) {
         var mutatingDate = events[dateToEdit]
 
         mutatingDate?.removeAll(where: { event in
@@ -43,11 +66,11 @@ struct EventsModel: Hashable {
         events[dateToEdit] = mutatingDate
     }
 
-    /// Builds Mock Events from default setup
-    static func MockCreateEventsModel() -> EventsModel {
+    /// Builds Mock Events
+    static func MockCreateEvents() -> [Date: [Event]] {
         var eventsStore: [Date: [Event]] = [:]
 
-        for i in 0...90 {
+        for i in 0...2 {
             let currentDay = Date.now.add(i, .day)
             let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
             if DayType.isWeekDay(day: dayDescription)  {
@@ -64,10 +87,17 @@ struct EventsModel: Hashable {
                 eventsStore[currentDay] = eventsForDay
             }
         }
-        return EventsModel(events: eventsStore)
+        return eventsStore
+    }
+
+    /// Builds Mock Events from default setup
+    static func MockCreateEventsModel() -> EventsModel {
+        EventsModel(events: MockCreateEvents())
     }
 
     static func MockEvent() -> Event {
-        .init(name: "Vault Session", range: "06:30am - 08:30am", color: .blue)
+        let rand = Int.random(in: 0...9)
+        let colors: [Color] = [.blue, .green, .red, .orange, .gray, .yellow, .white, .cyan, .mint, .pink]
+        return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors[rand])
     }
 }
