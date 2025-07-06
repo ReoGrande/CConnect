@@ -58,7 +58,7 @@ extension DV.ColoredCircle {
     func createSelectionView() -> AnyView {
         Circle()
             .fill(.clear)
-            .strokeBorder(.primary, lineWidth: 1)
+            .strokeBorder(.placeholder, lineWidth: 1)
             .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity), removal: .opacity))
             .active(if: isSelected() && !isPast())
             .erased()
@@ -67,7 +67,7 @@ extension DV.ColoredCircle {
 private extension DV.ColoredCircle {
     func createDayLabelBackground() -> some View {
         Circle()
-            .fill(isSelected() ? .primary : color ?? .clear)
+            .fill(isSelected() ? Color(hexString: "#FFD700")! : color ?? .clear)
             .padding(4)
     }
     func createDayLabelText() -> some View  {

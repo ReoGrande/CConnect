@@ -53,7 +53,17 @@ struct Events: Codable {
 
 /// `Model` responsible for storing and mutating `Events`
 class EventsModel: ObservableObject {
-    @Published var calendar: Events
+    @Published var calendar: Events {
+        didSet {
+            do {
+                if calendar.dayEvents.count > 0 {
+                    try encodeToLocal()
+                }
+            } catch {
+                print("Cannot encode to local")
+            }
+        }
+    }
 
     /*
      TODO: EventModel Rebuild
@@ -67,24 +77,23 @@ class EventsModel: ObservableObject {
     }
 
     init() {
-        // TODO: MAKE A GENERATED DEFAULTS JSON, RENAME MOCKCREATEEVENTS TO
         // DefaultEvents
-        self.calendar = EventsModel.MockCreateEvents()
+        self.calendar = Events(dayEvents: [:])
     }
 
     /// Add `events` from `dateToEdit`
     func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) -> [Date:[Event]] {
         let dateToEditString = MDateFormatter.getString(from: dateToEdit, format: "d MMM y")
-        print("****DATETOEDITv\(dateToEditString)")
+//        print("****DATETOEDITv\(dateToEditString)")
         var ev: Date? = nil
 
         calendar.dayEvents.forEach { date in
             if MDateFormatter.getString(from: date.key, format: "d MMM y") == dateToEditString {
-                print("\(date.key)")
-                print(" before addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
+//                print("\(date.key)")
+//                print(" before addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
                 ev = date.key
                 // TODO: FIX UI FOR ADD EVENTS NOT RESPONDING
-                print(" addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
+//                print(" addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
             }
         }
 
@@ -110,10 +119,10 @@ class EventsModel: ObservableObject {
 
     // MARK: Mock Events
     /// Builds Mock Events
-    static func MockCreateEvents() -> Events {
+    static func MockCreateEvents(_ days: Int) -> Events {
         var eventsStore: [Date: [Event]] = [:]
 
-        for i in 0...90 {
+        for i in 0...days {
             let currentDay = Date.now.add(i, .day)
             let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
             if DayType.isWeekDay(day: dayDescription)  {
@@ -135,7 +144,7 @@ class EventsModel: ObservableObject {
 
     /// Builds Mock Events from default setup
     static func MockCreateEventsModel() -> EventsModel {
-        EventsModel(events: MockCreateEvents())
+        EventsModel(events: MockCreateEvents(30))
     }
 
     static func MockEvent() -> Event {
@@ -143,17 +152,54 @@ class EventsModel: ObservableObject {
         let colors: [String] = ["#000000", "#FF0000", "#FFA500", "#808080", "#FFFF00", "#FFFFFF", "#0000FF", "#FFC0CB", "#FFF8DC", "#90EE90"]
         return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors[rand])
     }
+
+    static func EmptyEvents() -> Events {
+        return Events(dayEvents: [:])
+    }
 }
 
 extension EventsModel {
-//    func encodeToLocal() {
-//        let jsonEncoder = JSONEncoder()
-//        let eventsJson = try jsonEncoder.encode(events)
-//        let bookJsonString = String(data: bookJson, encoding: .utf8)
-//
-//        print("\(bookJsonString!)")
-//    }
+    func encodeToLocal() throws {
+        let jsonEncoder = JSONEncoder()
+        let eventsJson = try jsonEncoder.encode(calendar)
+        guard let bookJsonString = String(data: eventsJson, encoding: .utf8) else {
+            print("JSON Failed to convert to string")
+            return
+        }
+        //print("\(bookJsonString)")
+        let url = URL.documentsDirectory.appending(path: "Events.txt")
+
+        do {
+            try eventsJson.write(to: url, options: [.atomic, .completeFileProtection])
+            let input = try String(contentsOf: url, encoding: .utf8)
+            print(input)
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+
+    func decodeFromLocal() async -> Events {
+        let url = URL.documentsDirectory.appending(path: "Events.txt")
+        let decoder = JSONDecoder()
+        do {
+            let input = try String(contentsOf: url, encoding: .utf8)
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let calendarData = try decoder.decode(Events.self, from: data)
+            print("****Calendar: \(calendarData)")
+
+            return calendarData
+        } catch {
+            print(error.localizedDescription)
+        }
+
+        return Events(dayEvents: [:])
+    }
+
 }
 
-
-
+extension String {
+    func toJSON() -> Any? {
+        guard let data = self.data(using: .utf8, allowLossyConversion: false) else { return nil }
+        return try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+    }
+}

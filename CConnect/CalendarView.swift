@@ -15,25 +15,44 @@ import MijickCalendarView
 struct CalendarView: View {
     @State private var dateRange : MDateRange? = .init()
     @State private var dateSelected : Date? = Date.now
-    @ObservedObject private var eventsModel: EventsModel = EventsModel.MockCreateEventsModel()
+    @ObservedObject private var eventsModel: EventsModel = EventsModel()
 
     var body: some View {
         VStack(spacing: 5) {
             Spacer()
             MCalendarView(selectedDate: $dateSelected, selectedRange: nil, configBuilder: configureCalendar)
+                .task {
+                    eventsModel.calendar = await eventsModel.decodeFromLocal()
+                }
                 .frame(height: 400)
                 .padding(24)
 // TODO: FUNCTIONALITY FOR ADMINISTRATOR TO ADD AND REMOVE EVENTS.
-//            Divider()
-//            HStack(spacing: 24) {
-//                Button {
-//                    print("Add Event")
-//                    addEvents()
-//                } label: {
-//                    Image(systemName: "plus")
-//                }
-//            }
-//            .frame(height: 15)
+            Divider()
+            HStack(spacing: 24) {
+                Button {
+                    print("Add Event")
+                    addEvents()
+                } label: {
+                    Image(systemName: "plus")
+                }
+                Button {
+                    Task {
+                        print("record Event")
+                        await recordEvents()
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                }
+                Button {
+                    Task {
+                        print("Mock Events")
+                        generateMockEvents()
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+            .frame(height: 15)
             Divider()
             createEventsView()
             Spacer()
@@ -92,6 +111,21 @@ extension CalendarView {
             eventsModel.calendar.dayEvents = eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
         }
         print(date)
+    }
+
+    func recordEvents() async {
+        guard let date = dateSelected else {
+            print("addEvents: Failed to add event")
+            return
+        }
+        print(date)
+        eventsModel.calendar = await eventsModel.decodeFromLocal()
+    }
+
+    func generateMockEvents() {
+        DispatchQueue.main.async {
+            eventsModel.calendar = EventsModel.MockCreateEvents(30)
+        }
     }
 }
 
