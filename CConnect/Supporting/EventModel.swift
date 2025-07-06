@@ -35,24 +35,28 @@ class EventsModel {
     }
 
     /// Add `events` from `dateToEdit`
-    func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) {
+    func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) -> [Date:[Event]] {
         let dateToEditString = MDateFormatter.getString(from: dateToEdit, format: "d MMM y")
         print("****DATETOEDITv\(dateToEditString)")
+        var ev: Date? = nil
+
         events.keys.forEach { date in
             if MDateFormatter.getString(from: date, format: "d MMM y") == dateToEditString {
                 print("\(date)")
                 print(" before addEvents EventModel: \(String(describing: events[date]))")
-                var ev = events[date]
-                ev?.append(eventsToAdd[0])
-                events[date] = ev
-
+                ev = date
                 // TODO: FIX UI FOR ADD EVENTS NOT RESPONDING
                 print(" addEvents EventModel: \(String(describing: events[date]))")
-                return
             }
         }
 
-        events[dateToEdit] = eventsToAdd
+        guard let ev else {
+            events[dateToEdit] = eventsToAdd
+            return events
+        }
+
+        events[ev]?.append(contentsOf: eventsToAdd)
+        return events
     }
 
     /// Removes `events` from `dateToEdit`
