@@ -10,7 +10,7 @@ import SwiftData
 
 struct HomeView: View {
     var body: some View {
-        ButtonsView()
+            ButtonsView()
     }
 }
 

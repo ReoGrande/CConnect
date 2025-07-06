@@ -15,27 +15,30 @@ import MijickCalendarView
 struct CalendarView: View {
     @State private var dateRange : MDateRange? = .init()
     @State private var dateSelected : Date? = Date.now
-    @State private var eventsModel: EventsModel = EventsModel.MockCreateEventsModel()
-    
+    @ObservedObject private var eventsModel: EventsModel = EventsModel.MockCreateEventsModel()
+
     var body: some View {
-            VStack {
-                MCalendarView(selectedDate: $dateSelected, selectedRange: nil, configBuilder: configureCalendar)
-                    .padding(.horizontal, 24)
-                Spacer()
-                HStack(spacing: 24) {
-                    Button {
-                        print("Add Event")
-                            addEvents()
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-                Spacer()
-                createEventsView()
-                .padding(.horizontal, 24)
-                Spacer()
+        VStack(spacing: 5) {
+            Spacer()
+            MCalendarView(selectedDate: $dateSelected, selectedRange: nil, configBuilder: configureCalendar)
+                .frame(height: 400)
+                .padding(24)
+// TODO: FUNCTIONALITY FOR ADMINISTRATOR TO ADD AND REMOVE EVENTS.
+//            Divider()
+//            HStack(spacing: 24) {
+//                Button {
+//                    print("Add Event")
+//                    addEvents()
+//                } label: {
+//                    Image(systemName: "plus")
+//                }
+//            }
+//            .frame(height: 15)
+            Divider()
+            createEventsView()
+            Spacer()
         }
-            .navigationTitle("BPVA Calendar")
+        .navigationTitle("BPVA Calendar")
     }
 }
 
@@ -43,14 +46,14 @@ extension CalendarView {
     func buildDayView(_ date: Date, _ isCurrentMonth: Bool, selectedDate: Binding<Date?>?, range: Binding<MDateRange?>?) -> DV.ColoredCircle {
         return .init(date: date, color: getDateColor(date), isCurrentMonth: isCurrentMonth, selectedDate: selectedDate, selectedRange: nil)
     }
-
+    
     func getDateColor(_ date: Date) -> Color? {
-        guard let hasSavedEvents = eventsModel.events.first(
-                    where: { $0.key.isSame(date) })?.value
+        guard let hasSavedEvents = eventsModel.calendar.dayEvents.first(
+            where: { $0.key.isSame(date) })?.value
         else { return nil }
-
-//        print("\(date.description) events: \(hasSavedEvents)")
-
+        
+        //        print("\(date.description) events: \(hasSavedEvents)")
+        
         switch hasSavedEvents.count{
         case 1:
             return .red
@@ -62,31 +65,31 @@ extension CalendarView {
             return nil
         }
     }
-
+    
     func createEventsView() -> some View {
-        EventsView(selectedDate: $dateSelected, events: $eventsModel.events)
-            .padding(24)
-            .frame(height: 200)
+        EventsView(selectedDate: $dateSelected, events: $eventsModel.calendar.dayEvents)
+            .padding(.horizontal, 24)
+            .frame(minHeight: 240)
     }
-
+    
     func configureCalendar(_ config: CalendarConfig) -> CalendarConfig {
         config
             .daysHorizontalSpacing(9)
             .daysVerticalSpacing(19)
             .monthsBottomPadding(16)
-            .monthsTopPadding(42)
+            .monthsTopPadding(20)
             .monthLabel { ML.Center(month: $0) }
             .dayView(buildDayView)
     }
-
+    
     func addEvents() {
         guard let date = dateSelected else {
             print("addEvents: Failed to add event")
             return
         }
-
+        
         DispatchQueue.main.async {
-            eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
+            eventsModel.calendar.dayEvents = eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
         }
         print(date)
     }

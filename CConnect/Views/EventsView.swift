@@ -16,6 +16,7 @@ extension CalendarView {
             VStack() {
                 createTitle()
                 createContent()
+                Spacer()
             }
         }
     }
@@ -36,10 +37,27 @@ private extension CalendarView.EventsView {
     }
 }
 
+//TODO: SEPARATE INTO A EVENTSLISTVIEW
 private extension CalendarView.EventsView {
     func createEventsList(_ events: [Event]) -> some View {
-        VStack(spacing: 16) {
-            ForEach(events, id: \.self, content: createElement)
+        ScrollView {
+            VStack(spacing: 16) {
+                ForEach(events, id: \.self) { event in
+                    HStack(spacing: 10) {
+                        createColoredIndicator(event)
+
+                        NavigationLink {
+                            EventDetailView(event: event)
+                        } label: {
+                            VStack(spacing: 4) {
+                                createEventTitle(event)
+                                createEventSubtitle(event)
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                }
+            }
         }
     }
 

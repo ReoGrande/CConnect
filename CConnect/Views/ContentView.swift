@@ -13,9 +13,19 @@ import MijickCalendarView
 
 struct ContentView: View {
     var body: some View {
-        NavigationStack {
-            HomeView()
+        VStack {
+            Spacer()
+            NavigationStack {
+                HomeView()
+            }
+            Spacer()
+// TODO: ADD IN BOTTOM NAVIGATION BAR TO REPLACE HOMEVIEW
+//            Color.black
+//                .frame(minWidth: 0, maxWidth: .infinity)
+//                .frame(height: 100)
         }
+        .ignoresSafeArea()
+        
     }
 }
 
