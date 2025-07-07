@@ -38,7 +38,7 @@ struct CalendarView: View {
                 Button {
                     Task {
                         print("record Event")
-                        await recordEvents()
+                        await decodeEvents()
                     }
                 } label: {
                     Image(systemName: "plus")
@@ -47,6 +47,25 @@ struct CalendarView: View {
                     Task {
                         print("Mock Events")
                         generateMockEvents()
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                }
+                Spacer()
+                Button {
+                    Task {
+                        print("Encode to Database Events")
+                        encodeToNetworkEvents()
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                }
+                Spacer()
+
+                Button {
+                    Task {
+                        print("Decode from Database Events")
+                        decodeFromNetworkEvents()
                     }
                 } label: {
                     Image(systemName: "plus")
@@ -113,7 +132,7 @@ extension CalendarView {
         print(date)
     }
 
-    func recordEvents() async {
+    func decodeEvents() async {
         guard let date = dateSelected else {
             print("addEvents: Failed to add event")
             return
@@ -124,8 +143,16 @@ extension CalendarView {
 
     func generateMockEvents() {
         DispatchQueue.main.async {
-            eventsModel.calendar = EventsModel.MockCreateEvents(30)
+            eventsModel.calendar = EventsModel.MockCreateEvents(3)
         }
+    }
+
+    func encodeToNetworkEvents() {
+        eventsModel.encodeAndSendToDatabase()
+    }
+
+    func decodeFromNetworkEvents() {
+        eventsModel.calendar = eventsModel.requestAndDecodeFromDatabase(limit: 1)
     }
 }
 

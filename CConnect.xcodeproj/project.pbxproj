@@ -7,7 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E46BDE592E1B3C2000941E6D /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E46BDE582E1B3C2000941E6D /* FirebaseCore */; };
+		E46BDE5B2E1B3C2000941E6D /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = E46BDE5A2E1B3C2000941E6D /* FirebaseDatabase */; };
 		E47F09E52D75203200F7C796 /* MijickCalendarView in Frameworks */ = {isa = PBXBuildFile; productRef = E47F09E42D75203200F7C796 /* MijickCalendarView */; };
+		E4EABEDE2E1B374B00AE960B /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = E4EABEDD2E1B374B00AE960B /* FirebaseAI */; };
+		E4EABEE02E1B374B00AE960B /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E4EABEDF2E1B374B00AE960B /* FirebaseAnalytics */; };
+		E4EABEE22E1B374B00AE960B /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = E4EABEE12E1B374B00AE960B /* FirebaseAnalyticsCore */; };
+		E4EABEE42E1B374B00AE960B /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = E4EABEE32E1B374B00AE960B /* FirebaseAnalyticsIdentitySupport */; };
+		E4EABEE62E1B374B00AE960B /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = E4EABEE52E1B374B00AE960B /* FirebaseAnalyticsOnDeviceConversion */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +64,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				E47F09E52D75203200F7C796 /* MijickCalendarView in Frameworks */,
+				E4EABEE62E1B374B00AE960B /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+				E4EABEE42E1B374B00AE960B /* FirebaseAnalyticsIdentitySupport in Frameworks */,
+				E4EABEDE2E1B374B00AE960B /* FirebaseAI in Frameworks */,
+				E46BDE592E1B3C2000941E6D /* FirebaseCore in Frameworks */,
+				E4EABEE02E1B374B00AE960B /* FirebaseAnalytics in Frameworks */,
+				E46BDE5B2E1B3C2000941E6D /* FirebaseDatabase in Frameworks */,
+				E4EABEE22E1B374B00AE960B /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +140,13 @@
 			name = CConnect;
 			packageProductDependencies = (
 				E47F09E42D75203200F7C796 /* MijickCalendarView */,
+				E4EABEDD2E1B374B00AE960B /* FirebaseAI */,
+				E4EABEDF2E1B374B00AE960B /* FirebaseAnalytics */,
+				E4EABEE12E1B374B00AE960B /* FirebaseAnalyticsCore */,
+				E4EABEE32E1B374B00AE960B /* FirebaseAnalyticsIdentitySupport */,
+				E4EABEE52E1B374B00AE960B /* FirebaseAnalyticsOnDeviceConversion */,
+				E46BDE582E1B3C2000941E6D /* FirebaseCore */,
+				E46BDE5A2E1B3C2000941E6D /* FirebaseDatabase */,
 			);
 			productName = CConnect;
 			productReference = E48EEB9F2D71536E003D1B37 /* CConnect.app */;
@@ -211,6 +232,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E47F09E32D75203200F7C796 /* XCRemoteSwiftPackageReference "CalendarView" */,
+				E4EABEDC2E1B374B00AE960B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E48EEBA02D71536E003D1B37 /* Products */;
@@ -429,7 +451,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = REO.CConnect;
+				PRODUCT_BUNDLE_IDENTIFIER = com.REO.CConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -469,7 +491,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = REO.CConnect;
+				PRODUCT_BUNDLE_IDENTIFIER = com.REO.CConnect;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -620,13 +642,54 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		E4EABEDC2E1B374B00AE960B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.15.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E46BDE582E1B3C2000941E6D /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseCore;
+		};
+		E46BDE5A2E1B3C2000941E6D /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseDatabase;
+		};
 		E47F09E42D75203200F7C796 /* MijickCalendarView */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E47F09E32D75203200F7C796 /* XCRemoteSwiftPackageReference "CalendarView" */;
 			productName = MijickCalendarView;
+		};
+		E4EABEDD2E1B374B00AE960B /* FirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4EABEDC2E1B374B00AE960B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAI;
+		};
+		E4EABEDF2E1B374B00AE960B /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4EABEDC2E1B374B00AE960B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		E4EABEE12E1B374B00AE960B /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4EABEDC2E1B374B00AE960B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		E4EABEE32E1B374B00AE960B /* FirebaseAnalyticsIdentitySupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4EABEDC2E1B374B00AE960B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsIdentitySupport;
+		};
+		E4EABEE52E1B374B00AE960B /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4EABEDC2E1B374B00AE960B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
