@@ -11,8 +11,11 @@ Organizations in use:
 **Next steps & possible features**
 
 - Make main page for linking to website and navigating to calendar (DONE)
-- Hardcode weekly practices and meets independent of current date
+- Hardcode weekly practices and meets independent of current date (DONE)
+- Connect firebase API decoding/get and encoding/post requests (DONE)
+- Change color of circle Dependent on events for day (DONE)
+- Create Admin view and prop (PlainText password)
+- Integrate admin changes (remove, add, default)
 - Make Icon and loading screen
-- Change color of circle Dependent on events for day
 
 

@@ -16,6 +16,7 @@ struct CalendarView: View {
     @State private var dateRange : MDateRange? = .init()
     @State private var dateSelected : Date? = CalendarView.dateNow()
     @ObservedObject private var eventsModel: EventsModel = EventsModel()
+    @ObservedObject private var settingsModel: SettingsViewModel = SettingsViewModel()
 
     var body: some View {
         VStack(spacing: 5) {
@@ -33,44 +34,33 @@ struct CalendarView: View {
                     print("Add Event")
                     addEvents()
                     print(dateSelected)
-                } label: {
-                    Image(systemName: "plus")
-                }
+                } label: { Image(systemName: "plus") }
                 Button {
                     Task {
                         print("record Event")
                         await decodeEvents()
                     }
-                } label: {
-                    Image(systemName: "plus")
-                }
+                } label: { Image(systemName: "plus") }
                 Button {
                     Task {
                         print("Mock Events")
                         generateMockEvents()
                     }
-                } label: {
-                    Image(systemName: "plus")
-                }
+                } label: { Image(systemName: "plus") }
                 Spacer()
                 Button {
                     Task {
                         print("Encode to Database Events")
                         encodeToNetworkEvents()
                     }
-                } label: {
-                    Image(systemName: "plus")
-                }
+                } label: { Image(systemName: "plus")}
                 Spacer()
-
                 Button {
                     Task {
                         print("Decode from Database Events")
                         decodeFromNetworkEvents()
                     }
-                } label: {
-                    Image(systemName: "plus")
-                }
+                } label: { Image(systemName: "plus") }
             }
             .frame(height: 15)
             Divider()

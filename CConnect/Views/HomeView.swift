@@ -44,7 +44,7 @@ extension HomeView {
                     }
                     Spacer()
                     NavigationLink {
-                        Text("Settings")
+                        SettingsView()
                     } label: {
                         Text("Settings")
                     }
