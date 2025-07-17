@@ -14,7 +14,7 @@ import MijickCalendarView
 /// Builds view for `MKCalendar`
 struct CalendarView: View {
     @State private var dateRange : MDateRange? = .init()
-    @State private var dateSelected : Date? = Date.now
+    @State private var dateSelected : Date? = CalendarView.dateNow()
     @ObservedObject private var eventsModel: EventsModel = EventsModel()
 
     var body: some View {
@@ -32,6 +32,7 @@ struct CalendarView: View {
                 Button {
                     print("Add Event")
                     addEvents()
+                    print(dateSelected)
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -87,7 +88,7 @@ extension CalendarView {
     
     func getDateColor(_ date: Date) -> Color? {
         guard let hasSavedEvents = eventsModel.calendar.dayEvents.first(
-            where: { $0.key.isSame(date) })?.value
+            where: { $0.date.isSame(date) })?.day
         else { return nil }
         
         //        print("\(date.description) events: \(hasSavedEvents)")
@@ -142,8 +143,13 @@ extension CalendarView {
     }
 
     func generateMockEvents() {
+        guard let date = dateSelected else {
+            print("addEvents: Failed to add event")
+            return
+        }
+
         DispatchQueue.main.async {
-            eventsModel.calendar = EventsModel.MockCreateEvents(3)
+            eventsModel.calendar = EventsModel.MockCreateEvents(startDate: date, 2)
         }
     }
 
@@ -151,8 +157,26 @@ extension CalendarView {
         eventsModel.encodeAndSendToDatabase()
     }
 
-    func decodeFromNetworkEvents() {
-        eventsModel.calendar = eventsModel.requestAndDecodeFromDatabase(limit: 1)
+    func decodeFromNetworkEvents()  {
+        DispatchQueue.main.async {
+            eventsModel.requestAndDecodeFromDatabase(limit: 1) { (retrievedEvents) in
+                 if let events = retrievedEvents {
+                     eventsModel.calendar = events
+                     // Now you can use 'events' here! Update your UI, process the data, etc.
+                 } else {
+                     print("Failed to retrieve events or no events found on remote.")
+                 }
+             }
+        }
+    }
+
+    static func dateNow() -> Date {
+        let utzCal = Calendar(identifier: .gregorian)
+
+        let year = utzCal.component(.year, from: Date())
+        let month = utzCal.component(.month, from: Date())
+        let day = utzCal.component(.day, from: Date())
+        return DateComponents(calendar: utzCal, year: year, month: month, day: day).date!
     }
 }
 

@@ -10,7 +10,7 @@ import SwiftUI
 extension CalendarView {
     struct EventsView: View {
         @Binding var selectedDate: Date?
-        @Binding var events: [Date: [Event]]
+        @Binding var events: [DayEvents]
 
         var body: some View {
             VStack() {
@@ -30,7 +30,9 @@ private extension CalendarView.EventsView {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     @ViewBuilder func createContent() -> some View {
-        switch events[selectedDate] {
+        switch events.first(where: { dayEvents in
+            dayEvents.date == selectedDate
+        }) {
             case .some(let events): createEventsList(events)
             case .none: EmptyView()
         }
@@ -39,10 +41,10 @@ private extension CalendarView.EventsView {
 
 //TODO: SEPARATE INTO A EVENTSLISTVIEW
 private extension CalendarView.EventsView {
-    func createEventsList(_ events: [Event]) -> some View {
+    func createEventsList(_ events: DayEvents) -> some View {
         ScrollView {
             VStack(spacing: 16) {
-                ForEach(events, id: \.self) { event in
+                ForEach(events.day, id: \.self) { event in
                     HStack(spacing: 10) {
                         createColoredIndicator(event)
 
@@ -95,7 +97,7 @@ private extension CalendarView.EventsView {
 private extension CalendarView.EventsView {
     var title: String {
         guard let selectedDate else { return "" }
-        if Date.now.isSame(selectedDate) { return "TODAY" }
+        if CalendarView.dateNow().isSame(selectedDate) { return "TODAY" }
         else { return day.uppercased() }
     }
     var day: String {

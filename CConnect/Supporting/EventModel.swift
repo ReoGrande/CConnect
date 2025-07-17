@@ -47,16 +47,45 @@ struct Event: Equatable, Hashable, Codable {
     }
 }
 
+struct DayEvents: Codable {
+    var date: Date
+    var day: [Event]
+
+    enum CodingKeys: String, CodingKey {
+        case date = "date"
+        case day = "day"
+    }
+
+    init(date: Date, day: [Event]) {
+        self.date = date
+        self.day = day
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let dateInterval = try container.decode(Double.self, forKey: .date)
+
+        self.date = Date(timeIntervalSinceReferenceDate: dateInterval)
+        self.day = try container.decode([Event].self, forKey: .day)
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.date, forKey: .date)
+        try container.encode(self.day, forKey: .day)
+    }
+}
+
 struct Events: Codable {
     var saveTime: Date
-    var dayEvents: [Date:[Event]]
+    var dayEvents: [DayEvents]
     
     enum CodingKeys: String, CodingKey {
         case saveTime = "saveTime"
         case dayEvents = "dayEvents"
     }
     
-    init(saveTime: Date, dayEvents: [Date:[Event]]) {
+    init(saveTime: Date, dayEvents: [DayEvents]) {
         self.saveTime = saveTime
         self.dayEvents = dayEvents
     }
@@ -64,7 +93,13 @@ struct Events: Codable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.saveTime = try container.decode(Date.self, forKey: .saveTime)
-        self.dayEvents = try container.decode([Date:[Event]].self, forKey: .dayEvents)
+        self.dayEvents = try container.decode([DayEvents].self, forKey: .dayEvents)
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.saveTime, forKey: .saveTime)
+        try container.encode(self.dayEvents, forKey: .dayEvents)
     }
 }
 
@@ -100,7 +135,7 @@ class EventsModel: ObservableObject {
     
     init() {
         // DefaultEvents
-        self.calendar = Events(saveTime: Date.now,dayEvents: [:])
+        self.calendar = Events(saveTime: Date.now,dayEvents: [])
         self.ref = Database.database().reference()
     }
     
@@ -112,48 +147,52 @@ class EventsModel: ObservableObject {
     }
     
     /// Add `events` from `dateToEdit`
-    func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) -> [Date:[Event]] {
+    func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) -> [DayEvents] {
         let dateToEditString = MDateFormatter.getString(from: dateToEdit, format: "d MMM y")
         //        print("****DATETOEDITv\(dateToEditString)")
         var ev: Date? = nil
+        var dateIndex = -1
         
-        calendar.dayEvents.forEach { date in
-            if MDateFormatter.getString(from: date.key, format: "d MMM y") == dateToEditString {
+        for (index, date) in calendar.dayEvents.enumerated() {
+            if MDateFormatter.getString(from: date.date, format: "d MMM y") == dateToEditString {
                 //                print("\(date.key)")
                 //                print(" before addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
-                ev = date.key
+                ev = date.date
+                dateIndex = index
                 // TODO: FIX UI FOR ADD EVENTS NOT RESPONDING
                 //                print(" addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
             }
         }
         
         guard let ev else {
-            calendar.dayEvents[dateToEdit] = eventsToAdd
+            calendar.dayEvents.append(DayEvents(date: dateToEdit, day: eventsToAdd))
             return calendar.dayEvents
         }
         
-        calendar.dayEvents[ev]?.append(contentsOf: eventsToAdd)
+        calendar.dayEvents[dateIndex].day.append(contentsOf: eventsToAdd)
         return calendar.dayEvents
     }
     
     /// Removes `events` from `dateToEdit`
-    func removeEvents(dateToEdit: Date, _ eventsToRemove: [Event]) {
-        var mutatingDate = calendar.dayEvents[dateToEdit]
-        
-        mutatingDate?.removeAll(where: { event in
-            eventsToRemove.contains(event)
-        })
-        
-        calendar.dayEvents[dateToEdit] = mutatingDate
-    }
+//    func removeEvents(dateToEdit: Date, _ eventsToRemove: [Event]) {
+//        var mutatingDate = calendar.dayEvents.map { dayEvents in
+//            if dayEvents.date == dateToEdit { return dayEvents}
+//        }
+//
+//        mutatingDate.removeAll(where: { event in
+//            eventsToRemove.contains(event.)
+//        })
+//        
+//        calendar.dayEvents[dateToEdit] = mutatingDate
+//    }
     
     // MARK: Mock Events
     /// Builds Mock Events
-    static func MockCreateEvents(_ days: Int) -> Events {
-        var eventsStore: [Date: [Event]] = [:]
+    static func MockCreateEvents(startDate: Date, _ days: Int) -> Events {
+        var eventsStore: [DayEvents] = []
         
         for i in 0...days {
-            let currentDay = Date.now.add(i, .day)
+            let currentDay = startDate.add(i, .day)
             let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
             if DayType.isWeekDay(day: dayDescription)  {
                 // Build class times
@@ -162,20 +201,21 @@ class EventsModel: ObservableObject {
                     .init(name: "Lift", range: "05:30pm - 06:30pm", color: "#000000"),
                     .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: "#FF0000")
                 ]
-                eventsStore[currentDay] = eventsForDay
+                eventsStore.append(DayEvents(date: currentDay, day: eventsForDay))
             } else if DayType(rawValue: dayDescription) == .Sat {
                 // Build meet times
                 let eventsForDay: [Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: "#FF0000") ]
-                eventsStore[currentDay] = eventsForDay
+                eventsStore.append(DayEvents(date: currentDay, day: eventsForDay))
             }
         }
+        
         return Events(saveTime: Date.now, dayEvents: eventsStore)
     }
     
     /// Builds Mock Events from default setup
-    static func MockCreateEventsModel() -> EventsModel {
-        EventsModel(events: MockCreateEvents(30))
-    }
+//    static func MockCreateEventsModel() -> EventsModel {
+//        EventsModel(events: MockCreateEvents(30))
+//    }
 
     static func EmptyEventsModel() -> EventsModel {
         EventsModel(events: EmptyEvents())
@@ -188,7 +228,7 @@ class EventsModel: ObservableObject {
     }
     
     static func EmptyEvents() -> Events {
-        return Events(saveTime: Date.now, dayEvents: [:])
+        return Events(saveTime: Date.now, dayEvents: [])
     }
 }
 
@@ -201,13 +241,13 @@ extension EventsModel {
             print("JSON Failed to convert to string")
             return
         }
-        //print("\(bookJsonString)")
+//        print("\(bookJsonString)")
         let url = URL.documentsDirectory.appending(path: "Events.txt")
         
         do {
             try eventsJson.write(to: url, options: [.atomic, .completeFileProtection])
             let input = try String(contentsOf: url, encoding: .utf8)
-            print(input)
+//            print(input)
         } catch {
             print(error.localizedDescription)
         }
@@ -220,14 +260,14 @@ extension EventsModel {
             let input = try String(contentsOf: url, encoding: .utf8)
             let (data, _) = try await URLSession.shared.data(from: url)
             let calendarData = try decoder.decode(Events.self, from: data)
-            print("****Calendar: \(calendarData)")
+//            print("****Calendar: \(calendarData)")
             
             return calendarData
         } catch {
             print(error.localizedDescription)
         }
         
-        return Events(saveTime: Date.now, dayEvents: [:])
+        return Events(saveTime: Date.now, dayEvents: [])
     }
     
 }
@@ -242,7 +282,6 @@ extension EventsModel {
                 print("JSON Failed to convert to string")
                 return
             }
-            print("\(bookJsonString)")
             
             // 2. Specify where in your database tree you want to send data
             // For example, if you want to store it under a "my_items" node
@@ -266,7 +305,7 @@ extension EventsModel {
         }
     }
     
-    func requestAndDecodeFromDatabase(limit: UInt = 1) -> Events { // Default to 100 most recent posts
+    func requestAndDecodeFromDatabase(limit: UInt = 1, completion: @escaping (Events?) -> Void) { // Default to 100 most recent posts
         
         let decoder = JSONDecoder()
         let postsRef = ref.child("cconnect_events")// Still assuming your posts are under a "posts" node
@@ -286,25 +325,20 @@ extension EventsModel {
                 // will contain one child. We need to iterate its children.
                 for child in snapshot.children {
                     if let childSnapshot = child as? DataSnapshot {
-                        print("Found the last post!")
-                        print("Post Key: \(childSnapshot.key)")
-                        // TODO: FIX THIS NOT BEING PARSED AS EVENT
-                        print("Post Value: \(childSnapshot.value as? String)")
-                        guard
-                            let postD = childSnapshot.value as? String,
-                            let postObj = postD.toJSON() as? Dictionary<String, AnyObject>,
-                            let interval = postObj["saveTime"] as? TimeInterval,
-                            let dayEvents = postObj["dayEvents"] as? [Date:[Any]]
-                        else {
-                            print("Error converting Snapshot into Events")
-                            return
+                        do {
+                            guard
+                                let postD = childSnapshot.value as? String,
+                                let postObj = postD.data(using: .utf8)
+                            else {
+                                print("Error converting Snapshot into Events")
+                                return
+                            }
+
+                            events = try decoder.decode(Events.self, from: postObj)
+                            completion(events)
+                        } catch {
+                            print("no")
                         }
-                        
-                        let saveTime = Date(timeIntervalSince1970: interval)
-                        print(saveTime)
-                        print(dayEvents)
-                        
-//                        events = Events(saveTime: saveTime, dayEvents: dayEvents as? [Date:[Event]])
                     }
                 }
             } else {
@@ -314,8 +348,6 @@ extension EventsModel {
         }) { (error) in
             print("Error fetching last post: \(error.localizedDescription)")
         }
-
-        return events
     }
         
 }
