@@ -2,7 +2,7 @@
 
 By Reo Ogundare
 
-This project is for organization where sessions are needed. Initial offerings will be for simple reference to users of available sessions. Features and polish will be added incrementally.
+This project is for organizations where sessions are needed. Initial offerings will be for simple reference to users of available sessions. Features and polish will be added incrementally.
 
 Organizations in use:
 - Buckeye Pole Vault Academy
@@ -14,8 +14,12 @@ Organizations in use:
 - Hardcode weekly practices and meets independent of current date (DONE)
 - Connect firebase API decoding/get and encoding/post requests (DONE)
 - Change color of circle Dependent on events for day (DONE)
-- Create Admin view and prop (PlainText password)
-- Integrate admin changes (remove, add, default)
+- Create Admin view and prop (PlainText password) (DONE)
+- Integrate admin changes (remove, add, default) (DONE)
+- Update Add function to make empty event with default time
+- Update Modify view to edit event and view
 - Make Icon and loading screen
+- Make announcements view
+- Make notification when announcement released
 
 
