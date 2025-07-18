@@ -17,6 +17,10 @@ struct HomeView: View {
 extension HomeView {
     struct ButtonsView: View {
         @Environment(\.openURL) var openURL
+        @ObservedObject var settingsModel: SettingsViewModel = SettingsViewModel()
+        @ObservedObject private var eventsModel: EventsModel = EventsModel()
+
+
 
         var body: some View {
             VStack(spacing: 25) {
@@ -30,7 +34,7 @@ extension HomeView {
                     }
                     Spacer()
                     NavigationLink {
-                        CalendarView()
+                        CalendarView(eventsModel: eventsModel, settingsModel: settingsModel)
                     } label: {
                         Text("BPVA Calendar")
                     }
@@ -44,7 +48,7 @@ extension HomeView {
                     }
                     Spacer()
                     NavigationLink {
-                        SettingsView()
+                        SettingsView(settingsModel: settingsModel)
                     } label: {
                         Text("Settings")
                     }

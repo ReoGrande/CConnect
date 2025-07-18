@@ -15,57 +15,46 @@ import MijickCalendarView
 struct CalendarView: View {
     @State private var dateRange : MDateRange? = .init()
     @State private var dateSelected : Date? = CalendarView.dateNow()
-    @ObservedObject private var eventsModel: EventsModel = EventsModel()
-    @ObservedObject private var settingsModel: SettingsViewModel = SettingsViewModel()
+    @StateObject var eventsModel: EventsModel
+    @StateObject var settingsModel: SettingsViewModel
+    @State private var adminSettingsShowing: Bool = false
 
     var body: some View {
         VStack(spacing: 5) {
             Spacer()
             MCalendarView(selectedDate: $dateSelected, selectedRange: nil, configBuilder: configureCalendar)
-                .task {
-                    eventsModel.calendar = await eventsModel.decodeFromLocal()
-                }
                 .frame(height: 400)
                 .padding(24)
-// TODO: FUNCTIONALITY FOR ADMINISTRATOR TO ADD AND REMOVE EVENTS.
-            Divider()
-            HStack(spacing: 24) {
-                Button {
-                    print("Add Event")
-                    addEvents()
-                    print(dateSelected)
-                } label: { Image(systemName: "plus") }
-                Button {
-                    Task {
-                        print("record Event")
-                        await decodeEvents()
+// TODO: FUNCTIONALITY FOR ADMINISTRATOR TO ADD(Default) AND REMOVE EVENTS.
+            if settingsModel.currentMode == .admin {
+                Divider()
+                HStack {
+                    Spacer()
+                    Button {
+                        print("Add Event")
+                        addEvents()
+                        print(dateSelected)
+                    } label: { Text("Add Event") }
+                        .buttonStyle(.bordered)
+
+                    Spacer()
+                    Button("Admin Settings") {
+                        adminSettingsShowing = !adminSettingsShowing
                     }
-                } label: { Image(systemName: "plus") }
-                Button {
-                    Task {
-                        print("Mock Events")
-                        generateMockEvents()
+                    .buttonStyle(.borderedProminent)
+                    .sheet(isPresented: $adminSettingsShowing) {
+                        AdminButtonView()
                     }
-                } label: { Image(systemName: "plus") }
-                Spacer()
-                Button {
-                    Task {
-                        print("Encode to Database Events")
-                        encodeToNetworkEvents()
-                    }
-                } label: { Image(systemName: "plus")}
-                Spacer()
-                Button {
-                    Task {
-                        print("Decode from Database Events")
-                        decodeFromNetworkEvents()
-                    }
-                } label: { Image(systemName: "plus") }
+
+                    Spacer()
+                }
             }
-            .frame(height: 15)
             Divider()
             createEventsView()
             Spacer()
+        }
+        .task {
+            eventsModel.calendar = await eventsModel.decodeFromLocal()
         }
         .navigationTitle("BPVA Calendar")
     }
@@ -96,7 +85,7 @@ extension CalendarView {
     }
     
     func createEventsView() -> some View {
-        EventsView(selectedDate: $dateSelected, events: $eventsModel.calendar.dayEvents)
+        EventsView(selectedDate: $dateSelected, eventsModel: eventsModel, settingsModel: settingsModel)
             .padding(.horizontal, 24)
             .frame(minHeight: 240)
     }
@@ -123,6 +112,18 @@ extension CalendarView {
         print(date)
     }
 
+    func deleteEvents() {
+        guard let date = dateSelected else {
+            print("deleteEvents: Failed to delete event")
+            return
+        }
+
+        DispatchQueue.main.async {
+            eventsModel.calendar.dayEvents = eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
+        }
+        print(date)
+    }
+
     func decodeEvents() async {
         guard let date = dateSelected else {
             print("addEvents: Failed to add event")
@@ -139,7 +140,7 @@ extension CalendarView {
         }
 
         DispatchQueue.main.async {
-            eventsModel.calendar = EventsModel.MockCreateEvents(startDate: date, 2)
+            eventsModel.calendar = EventsModel.MockCreateEvents(startDate: date, 90)
         }
     }
 
@@ -170,6 +171,47 @@ extension CalendarView {
     }
 }
 
+extension CalendarView {
+    func AdminButtonView() -> some View {
+        VStack {
+            Spacer()
+            List {
+                Button {
+                    Task {
+                        print("record Events")
+                        await decodeEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Retrieve all local events") }
+                
+                Button {
+                    Task {
+                        print("Mock Events")
+                        generateMockEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Replace all events with default schedule") }
+                Button {
+                    Task {
+                        print("Encode to Database Events")
+                        encodeToNetworkEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Save schedule to server")}
+                Button {
+                    Task {
+                        print("Decode from Database Events")
+                        decodeFromNetworkEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Retrieve newest schedule from server") }
+            }
+            .buttonStyle(.borderedProminent)
+            Spacer()
+        }
+    }
+}
+
 #Preview {
-    CalendarView()
+    CalendarView(eventsModel: EventsModel(), settingsModel: SettingsViewModel())
 }

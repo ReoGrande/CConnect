@@ -74,6 +74,12 @@ struct DayEvents: Codable {
         try container.encode(self.date, forKey: .date)
         try container.encode(self.day, forKey: .day)
     }
+
+    mutating func deleteEvent(event: Event) {
+        day.removeAll { ev in
+            ev == event
+        }
+    }
 }
 
 struct Events: Codable {
@@ -100,6 +106,15 @@ struct Events: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.saveTime, forKey: .saveTime)
         try container.encode(self.dayEvents, forKey: .dayEvents)
+    }
+
+    mutating func deleteEvent(day: Date, event: Event) {
+        for index in dayEvents.indices {
+            if day == dayEvents[index].date {
+                dayEvents[index].deleteEvent(event: event)
+                break
+            }
+        }
     }
 }
 
@@ -149,22 +164,17 @@ class EventsModel: ObservableObject {
     /// Add `events` from `dateToEdit`
     func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) -> [DayEvents] {
         let dateToEditString = MDateFormatter.getString(from: dateToEdit, format: "d MMM y")
-        //        print("****DATETOEDITv\(dateToEditString)")
         var ev: Date? = nil
         var dateIndex = -1
         
         for (index, date) in calendar.dayEvents.enumerated() {
             if MDateFormatter.getString(from: date.date, format: "d MMM y") == dateToEditString {
-                //                print("\(date.key)")
-                //                print(" before addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
                 ev = date.date
                 dateIndex = index
-                // TODO: FIX UI FOR ADD EVENTS NOT RESPONDING
-                //                print(" addEvents EventModel: \(String(describing: calendar.dayEvents[date.key]))")
             }
         }
         
-        guard let ev else {
+        guard ev != nil else {
             calendar.dayEvents.append(DayEvents(date: dateToEdit, day: eventsToAdd))
             return calendar.dayEvents
         }
@@ -173,18 +183,29 @@ class EventsModel: ObservableObject {
         return calendar.dayEvents
     }
     
-    /// Removes `events` from `dateToEdit`
-//    func removeEvents(dateToEdit: Date, _ eventsToRemove: [Event]) {
-//        var mutatingDate = calendar.dayEvents.map { dayEvents in
-//            if dayEvents.date == dateToEdit { return dayEvents}
-//        }
-//
-//        mutatingDate.removeAll(where: { event in
-//            eventsToRemove.contains(event.)
-//        })
-//        
-//        calendar.dayEvents[dateToEdit] = mutatingDate
-//    }
+    // Deletes `events` from `dateToEdit`
+    func deleteEvents(dateToEdit: Date, _ eventsToRemove: [Event]) -> [DayEvents] {
+        let dateToEditString = MDateFormatter.getString(from: dateToEdit, format: "d MMM y")
+        var ev: Date? = nil
+        var dateIndex = -1
+
+        for (index, date) in calendar.dayEvents.enumerated() {
+            if MDateFormatter.getString(from: date.date, format: "d MMM y") == dateToEditString {
+                ev = date.date
+                dateIndex = index
+            }
+        }
+
+        guard ev != nil else {
+//            calendar.dayEvents.append(DayEvents(date: dateToEdit, day: eventsToAdd))
+            calendar.dayEvents[dateIndex].day.removeAll(where: { event in
+                eventsToRemove.contains(event)
+            })
+            return calendar.dayEvents
+        }
+
+        return calendar.dayEvents
+    }
     
     // MARK: Mock Events
     /// Builds Mock Events
@@ -237,17 +258,12 @@ extension EventsModel {
     func encodeToLocal() throws {
         let jsonEncoder = JSONEncoder()
         let eventsJson = try jsonEncoder.encode(calendar)
-        guard let bookJsonString = String(data: eventsJson, encoding: .utf8) else {
-            print("JSON Failed to convert to string")
-            return
-        }
-//        print("\(bookJsonString)")
+
         let url = URL.documentsDirectory.appending(path: "Events.txt")
         
         do {
             try eventsJson.write(to: url, options: [.atomic, .completeFileProtection])
-            let input = try String(contentsOf: url, encoding: .utf8)
-//            print(input)
+
         } catch {
             print(error.localizedDescription)
         }
@@ -257,10 +273,8 @@ extension EventsModel {
         let url = URL.documentsDirectory.appending(path: "Events.txt")
         let decoder = JSONDecoder()
         do {
-            let input = try String(contentsOf: url, encoding: .utf8)
             let (data, _) = try await URLSession.shared.data(from: url)
             let calendarData = try decoder.decode(Events.self, from: data)
-//            print("****Calendar: \(calendarData)")
             
             return calendarData
         } catch {

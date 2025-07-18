@@ -10,7 +10,8 @@ import Foundation
 class UserSettings: ObservableObject {
     
     static let shared = UserSettings()
-    @Published var mode: Mode = .user
+    // Default Value
+    @Published var mode: Mode = .admin
     private init() {} // Prevent creating multiple instances
 }
 

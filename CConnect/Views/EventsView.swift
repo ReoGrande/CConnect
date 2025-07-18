@@ -10,7 +10,10 @@ import SwiftUI
 extension CalendarView {
     struct EventsView: View {
         @Binding var selectedDate: Date?
-        @Binding var events: [DayEvents]
+        @State var modifyShowing: Bool = false
+        @StateObject var eventsModel: EventsModel
+        @StateObject var settingsModel: SettingsViewModel
+        
 
         var body: some View {
             VStack() {
@@ -30,7 +33,7 @@ private extension CalendarView.EventsView {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     @ViewBuilder func createContent() -> some View {
-        switch events.first(where: { dayEvents in
+        switch eventsModel.calendar.dayEvents.first(where: { dayEvents in
             dayEvents.date == selectedDate
         }) {
             case .some(let events): createEventsList(events)
@@ -57,10 +60,32 @@ private extension CalendarView.EventsView {
                             }
                         }
                         .buttonStyle(.bordered)
+                        if settingsModel.currentMode == .admin {
+                            VStack {
+                                Button("Modify") {
+                                    modifyShowing = !modifyShowing
+                                    print("Modify")
+                                }
+                                .buttonStyle(.bordered)
+                                .sheet(isPresented: $modifyShowing) {
+                                    ModifyEventsView()
+                                }
+
+                                Button("Delete") {
+                                    deleteEvent(day: events.date, event: event)
+                                    print("Delete")
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    func deleteEvent(day: Date, event: Event) {
+        eventsModel.calendar.deleteEvent(day: day, event: event)
     }
 
     func createElement(_ event: Event) -> some View {
@@ -104,6 +129,14 @@ private extension CalendarView.EventsView {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE, d MMMM"
         return dateFormatter.string(from: selectedDate ?? Date())
+    }
+}
+
+private extension CalendarView.EventsView {
+    struct ModifyEventsView: View {
+        var body: some View {
+            Text("Modify")
+        }
     }
 }
 
