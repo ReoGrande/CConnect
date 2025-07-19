@@ -15,7 +15,11 @@ extension CalendarView {
         @StateObject var settingsModel: SettingsViewModel
         @State var modifiedEventName: String = ""
         @State var modifiedEventRange: String = ""
-        @State var modifiedEventColor: Color = Color.white
+        @State var modifiedEventColor: String = "#FFFFFF"
+        @State var eventSelected: Event?
+        @State var hours: Int = 0
+        @State var minutes: Int = 0
+        @State var amPM: [String] = ["AM", "PM"]
         
 
         var body: some View {
@@ -66,14 +70,23 @@ private extension CalendarView.EventsView {
                         if settingsModel.currentMode == .admin {
                             VStack {
                                 Button("Modify") {
+                                    eventSelected = event
                                     modifyShowing = !modifyShowing
                                     print("Modify")
                                 }
                                 .buttonStyle(.bordered)
-                                .sheet(isPresented: $modifyShowing) {
-                                    createModifyEventsView(day: events.date,eventToModify: event)
+                                if let eventS = eventSelected {
+                                    Spacer()
+                                        .sheet(isPresented: $modifyShowing) {
+                                            createModifyEventsView(day: events.date,eventToModify: eventS)
+                                                .onDisappear {
+                                                    eventSelected = nil
+                                                }
+                                        }
+                                    
+                                } else {
+                                    Spacer()
                                 }
-
                                 Button("Delete") {
                                     deleteEvent(day: events.date, event: event)
                                     print("Delete")
@@ -157,6 +170,7 @@ private extension CalendarView.EventsView {
                         .textFieldStyle(.roundedBorder)
                     TextField(eventToModify.range, text: $modifiedEventRange)
                         .textFieldStyle(.roundedBorder)
+                    createTimePicker()
                 }
                 .background(.ultraThinMaterial)
                 Spacer()
@@ -174,13 +188,15 @@ private extension CalendarView.EventsView {
             Button("Submit") {
                 // Can return with unedited element if all are empty
                 if !modifiedEventName.isEmpty || !modifiedEventRange.isEmpty {
-                    let modified = Event(name: modifiedEventName, range: modifiedEventRange, color: modifiedEventColor.toHex())
+                    let modified = Event(name: modifiedEventName, range: modifiedEventRange, color: modifiedEventColor)
                     modifyEvent(day: day, event: eventToModify, modified: modified)
+                } else if modifiedEventColor != eventToModify.color.toHex() {
+                    modifyEvent(day: day, event: eventToModify, modified: Event(name: eventToModify.name, range: eventToModify.range, color: modifiedEventColor))
                 }
 
                 modifiedEventName = ""
                 modifiedEventRange = ""
-                modifiedEventRange = ""
+                modifiedEventColor = ""
 
                 modifyShowing = !modifyShowing
             }
@@ -192,6 +208,43 @@ private extension CalendarView.EventsView {
 
     func modifyEvent(day: Date, event: Event, modified: Event) {
         eventsModel.calendar.modifyEvent(day: day, eventToModify: event, modifiedEvent: modified)
+    }
+
+    func createTimePicker() -> some View {
+        HStack {
+            Picker("", selection: $hours){
+                ForEach(1..<13, id: \.self) { i in
+                    Text("\(i)").tag(i)
+                }
+            }.pickerStyle(WheelPickerStyle())
+            Picker("", selection: $minutes){
+                ForEach(0..<60, id: \.self) { i in
+                    Text("\(i)").tag(i)
+                }
+            }.pickerStyle(WheelPickerStyle())
+            Picker("", selection: $amPM){
+                ForEach(amPM, id: \.self) { i in
+                    Text("\(i)")
+                }
+            }.pickerStyle(WheelPickerStyle())
+            Divider()
+            
+            Picker("", selection: $hours){
+                ForEach(1..<13, id: \.self) { i in
+                    Text("\(i)").tag(i)
+                }
+            }.pickerStyle(WheelPickerStyle())
+            Picker("", selection: $minutes){
+                ForEach(0..<60, id: \.self) { i in
+                    Text("\(i)").tag(i)
+                }
+            }.pickerStyle(WheelPickerStyle())
+            Picker("", selection: $amPM){
+                ForEach(amPM, id: \.self) { i in
+                    Text("\(i)")
+                }
+            }.pickerStyle(WheelPickerStyle())
+}.padding(.horizontal)
     }
 }
 

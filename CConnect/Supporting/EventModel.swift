@@ -246,7 +246,7 @@ class EventsModel: ObservableObject {
                 let eventsForDay: [Event] = [
                     .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: "#CD2504"),
                     .init(name: "Lift", range: "05:30pm - 06:30pm", color: "#000000"),
-                    .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: "#CD2504")
+                    .init(name: "Vault Session #2", range: "06:30pm - 08:30pm", color: "#CD2504")
                 ]
                 eventsStore.append(DayEvents(date: currentDay, day: eventsForDay))
             } else if DayType(rawValue: dayDescription) == .Sat {
