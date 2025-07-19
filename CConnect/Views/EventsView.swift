@@ -13,6 +13,9 @@ extension CalendarView {
         @State var modifyShowing: Bool = false
         @StateObject var eventsModel: EventsModel
         @StateObject var settingsModel: SettingsViewModel
+        @State var modifiedEventName: String = ""
+        @State var modifiedEventRange: String = ""
+        @State var modifiedEventColor: Color = Color.white
         
 
         var body: some View {
@@ -68,7 +71,7 @@ private extension CalendarView.EventsView {
                                 }
                                 .buttonStyle(.bordered)
                                 .sheet(isPresented: $modifyShowing) {
-                                    ModifyEventsView()
+                                    createModifyEventsView(day: events.date,eventToModify: event)
                                 }
 
                                 Button("Delete") {
@@ -133,10 +136,62 @@ private extension CalendarView.EventsView {
 }
 
 private extension CalendarView.EventsView {
-    struct ModifyEventsView: View {
-        var body: some View {
-            Text("Modify")
+    func createModifyEventsView(day: Date, eventToModify: Event) -> some View {
+        VStack(alignment: .center, spacing: 25) {
+            HStack(spacing: 25) {
+                Button("Cancel") {
+                    modifyShowing = !modifyShowing
+                }
+                Spacer()
+            }
+            VStack {
+                Text("Modify: ")
+                    .bold()
+                Text("\(eventToModify.name), \(eventToModify.range)")
+            }
+            Divider()
+            HStack(spacing: 25) {
+                Spacer()
+                VStack {
+                    TextField(eventToModify.name, text: $modifiedEventName)
+                        .textFieldStyle(.roundedBorder)
+                    TextField(eventToModify.range, text: $modifiedEventRange)
+                        .textFieldStyle(.roundedBorder)
+                }
+                .background(.ultraThinMaterial)
+                Spacer()
+            }
+            Divider()
+            Picker("Event Color: ", selection: $modifiedEventColor) {
+                ForEach(Helpers.colors.sorted(by: >), id: \.key) { key, value  in
+                    Text("\(value)")
+                }
+            }
+            .pickerStyle(.wheel)
+            .background(.ultraThinMaterial)
+            Spacer()
+            Divider()
+            Button("Submit") {
+                // Can return with unedited element if all are empty
+                if !modifiedEventName.isEmpty || !modifiedEventRange.isEmpty {
+                    let modified = Event(name: modifiedEventName, range: modifiedEventRange, color: modifiedEventColor.toHex())
+                    modifyEvent(day: day, event: eventToModify, modified: modified)
+                }
+
+                modifiedEventName = ""
+                modifiedEventRange = ""
+                modifiedEventRange = ""
+
+                modifyShowing = !modifyShowing
+            }
+            .buttonStyle(.borderedProminent)
+            Spacer()
         }
+        .padding(25)
+    }
+
+    func modifyEvent(day: Date, event: Event, modified: Event) {
+        eventsModel.calendar.modifyEvent(day: day, eventToModify: event, modifiedEvent: modified)
     }
 }
 

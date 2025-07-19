@@ -23,7 +23,13 @@ struct Event: Equatable, Hashable, Codable {
         case range = "range"
         case color = "color"
     }
-    
+
+    init() {
+        self.name = ""
+        self.range = ""
+        self.color = Color.white
+    }
+
     init(name: String, range: String, color: String) {
         self.name = name
         self.range = range
@@ -75,10 +81,21 @@ struct DayEvents: Codable {
         try container.encode(self.day, forKey: .day)
     }
 
+    /// Returns  event index if found
+    func eventIndex(event: Event) -> Int? {
+        day.firstIndex(of: event)
+    }
+
+    /// Deletes event if found
     mutating func deleteEvent(event: Event) {
-        day.removeAll { ev in
-            ev == event
-        }
+        guard let indexToDelete = eventIndex(event: event) else { return }
+        day.remove(at: indexToDelete)
+    }
+
+    /// Modifies event if found, otherwise adds event
+    mutating func modifyEvent(event: Event, replacement: Event) {
+        guard let indexToReplace = eventIndex(event: event) else { return }
+        day[indexToReplace] = replacement
     }
 }
 
@@ -112,6 +129,15 @@ struct Events: Codable {
         for index in dayEvents.indices {
             if day == dayEvents[index].date {
                 dayEvents[index].deleteEvent(event: event)
+                break
+            }
+        }
+    }
+
+    mutating func modifyEvent(day: Date, eventToModify: Event, modifiedEvent: Event) {
+        for index in dayEvents.indices {
+            if day == dayEvents[index].date {
+                dayEvents[index].modifyEvent(event: eventToModify, replacement: modifiedEvent)
                 break
             }
         }
@@ -218,14 +244,14 @@ class EventsModel: ObservableObject {
             if DayType.isWeekDay(day: dayDescription)  {
                 // Build class times
                 let eventsForDay: [Event] = [
-                    .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: "#FF0000"),
+                    .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: "#CD2504"),
                     .init(name: "Lift", range: "05:30pm - 06:30pm", color: "#000000"),
-                    .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: "#FF0000")
+                    .init(name: "Vault Session #1", range: "06:30pm - 08:30pm", color: "#CD2504")
                 ]
                 eventsStore.append(DayEvents(date: currentDay, day: eventsForDay))
             } else if DayType(rawValue: dayDescription) == .Sat {
                 // Build meet times
-                let eventsForDay: [Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: "#FF0000") ]
+                let eventsForDay: [Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: "#CD2504") ]
                 eventsStore.append(DayEvents(date: currentDay, day: eventsForDay))
             }
         }
@@ -244,8 +270,8 @@ class EventsModel: ObservableObject {
     
     static func MockEvent() -> Event {
         let rand = Int.random(in: 0...9)
-        let colors: [String] = ["#000000", "#FF0000", "#FFA500", "#808080", "#FFFF00", "#FFFFFF", "#0000FF", "#FFC0CB", "#FFF8DC", "#90EE90"]
-        return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors[rand])
+        let colors: [String:String] = Helpers.colors
+        return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors.randomElement()?.key ?? "#FFFFFF")
     }
     
     static func EmptyEvents() -> Events {
