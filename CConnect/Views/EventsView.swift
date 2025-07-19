@@ -170,11 +170,15 @@ private extension CalendarView.EventsView {
                         .textFieldStyle(.roundedBorder)
                     TextField(eventToModify.range, text: $modifiedEventRange)
                         .textFieldStyle(.roundedBorder)
-                    createTimePicker()
                 }
-                .background(.ultraThinMaterial)
                 Spacer()
             }
+            .background(.ultraThinMaterial)
+
+            createTimePicker()
+                .background(.ultraThinMaterial)
+
+
             Divider()
             Picker("Event Color: ", selection: $modifiedEventColor) {
                 ForEach(Helpers.colors.sorted(by: >), id: \.key) { key, value  in
@@ -215,33 +219,45 @@ private extension CalendarView.EventsView {
             Picker("", selection: $hours){
                 ForEach(1..<13, id: \.self) { i in
                     Text("\(i)").tag(i)
+                        .fixedSize(horizontal: true, vertical: false)
+
                 }
             }.pickerStyle(WheelPickerStyle())
             Picker("", selection: $minutes){
                 ForEach(0..<60, id: \.self) { i in
                     Text("\(i)").tag(i)
+                        .fixedSize(horizontal: true, vertical: false)
+
                 }
             }.pickerStyle(WheelPickerStyle())
             Picker("", selection: $amPM){
                 ForEach(amPM, id: \.self) { i in
                     Text("\(i)")
+                        .fixedSize(horizontal: true, vertical: false)
+
                 }
             }.pickerStyle(WheelPickerStyle())
+            
             Divider()
             
             Picker("", selection: $hours){
                 ForEach(1..<13, id: \.self) { i in
                     Text("\(i)").tag(i)
+                        .fixedSize(horizontal: true, vertical: false)
+
                 }
             }.pickerStyle(WheelPickerStyle())
             Picker("", selection: $minutes){
                 ForEach(0..<60, id: \.self) { i in
                     Text("\(i)").tag(i)
+                        .fixedSize(horizontal: true, vertical: false)
+
                 }
             }.pickerStyle(WheelPickerStyle())
             Picker("", selection: $amPM){
                 ForEach(amPM, id: \.self) { i in
                     Text("\(i)")
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }.pickerStyle(WheelPickerStyle())
 }.padding(.horizontal)
