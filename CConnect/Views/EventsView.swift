@@ -262,6 +262,10 @@ private extension CalendarView.EventsView {
             }.pickerStyle(WheelPickerStyle())
 }.padding(.horizontal)
     }
+
+    func applyRangeFromPicker() -> String {
+        return ""
+    }
 }
 
 // MARK: Helpers
