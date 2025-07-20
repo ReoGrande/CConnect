@@ -15,6 +15,8 @@ struct Event: Equatable, Hashable, Codable {
     let name: String
     let range: String
     let color: Color
+    let date: Date
+    var attendees: [UUID]
     // TODO: ATTENDEE TYPE
     //    var attendees: Attendee
     
@@ -22,18 +24,24 @@ struct Event: Equatable, Hashable, Codable {
         case name = "name"
         case range = "range"
         case color = "color"
+        case date = "date"
+        case attendees = "attendees"
     }
 
     init() {
         self.name = ""
         self.range = ""
         self.color = Color.white
+        self.date = Date.now
+        self.attendees = []
     }
 
-    init(name: String, range: String, color: String) {
+    init(name: String, range: String, color: String, date: Date = Date.now, attendees: [UUID] = []) {
         self.name = name
         self.range = range
         self.color = Color(hexString: color) ?? Color.white
+        self.date = date
+        self.attendees = attendees
     }
     
     init(from decoder: any Decoder) throws {
@@ -43,6 +51,12 @@ struct Event: Equatable, Hashable, Codable {
         
         let tempColor = try container.decode(String.self, forKey: .color)
         self.color = Color(hexString: tempColor) ?? Color.white
+
+        let dateInterval = try container.decode(Double.self, forKey: .date)
+
+        self.date = Date(timeIntervalSinceReferenceDate: dateInterval)
+
+        self.attendees = try container.decode([UUID].self, forKey: .attendees)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -50,6 +64,19 @@ struct Event: Equatable, Hashable, Codable {
         try container.encode(self.name, forKey: .name)
         try container.encode(self.range, forKey: .range)
         try container.encode(self.color.description, forKey: .color)
+        try container.encode(self.date, forKey: .date)
+        try container.encode(self.attendees, forKey: .attendees)
+    }
+
+    // TODO: INTEGRATE WITH CLOUD STORAGE FOR PULLING INFORMATION
+    // WILL BE TRANSITIONED TO ASYNC FOR NETWORK CALLS
+    func getAttendees() -> [User] {
+        Helpers.mockAttendeesUsers.filter { user in
+            if let index = self.attendees.firstIndex(of: user.id) {
+                  return true
+            }
+            return false
+        }
     }
 }
 
@@ -186,7 +213,7 @@ class EventsModel: ObservableObject {
             print("Observer removed for most recent posts.")
         }
     }
-    
+
     /// Add `events` from `dateToEdit`
     func addEvents(dateToEdit: Date, _ eventsToAdd: [Event]) -> [DayEvents] {
         let dateToEditString = MDateFormatter.getString(from: dateToEdit, format: "d MMM y")
@@ -272,7 +299,14 @@ class EventsModel: ObservableObject {
     static func MockEvent() -> Event {
         let rand = Int.random(in: 0...9)
         let colors: [String:String] = Helpers.colors
-        return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors.randomElement()?.key ?? "#FFFFFF")
+
+        var randomAttendees: [UUID] = []
+        let count = Helpers.mockAttendeesUsers.count - 1
+
+        for _ in 0..<Int.random(in: 0...15) {
+            randomAttendees.append(Helpers.mockAttendeesUsers[Int.random(in: 0...count)].id)
+        }
+        return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors.randomElement()?.key ?? "#FFFFFF", attendees: randomAttendees)
     }
     
     static func EmptyEvents() -> Events {
@@ -391,6 +425,12 @@ extension EventsModel {
             print("Error fetching last post: \(error.localizedDescription)")
         }
     }
+
+    // TODO: INTEGRATE WITH CLOUD STORAGE FOR PULLING INFORMATION
+    // WILL BE TRANSITIONED TO ASYNC FOR NETWORK CALLS
+//    func populateAttendees() {
+//        
+//    }
         
 }
 extension String {

@@ -12,7 +12,7 @@ class UserSettings: ObservableObject {
     
     static let shared = UserSettings()
     // Default Value for user mode in settings
-    @Published var mode: Mode = .user
+    @Published var mode: Mode = .admin
     private init() {} // Prevent creating multiple instances
 }
 

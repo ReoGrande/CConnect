@@ -60,6 +60,9 @@ private extension CalendarView.EventsView {
 
                         NavigationLink {
                             EventDetailView(event: event)
+                                .task {
+                                    event
+                                }
                         } label: {
                             VStack(spacing: 4) {
                                 createEventTitle(event)

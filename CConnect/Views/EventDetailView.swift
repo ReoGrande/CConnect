@@ -9,7 +9,14 @@ import SwiftUI
 
 struct EventDetailView: View {
     var event: Event
-    
+
+    @State var attendeesUsers: [User]?
+    // TODO: FIX POPULATING ATTENDEES FROM UUID
+    init(event: Event, attendeesUsers: [User]? = nil) {
+        self.event = event
+        populateAttendees()
+    }
+
     var body: some View {
         VStack(spacing: 25) {
             event.color
@@ -39,17 +46,22 @@ struct EventDetailView: View {
     // TODO: INTRODUCE ATTENDEES INTO EVENT MODEL
     func createAttendeeView() -> some View {
         VStack {
-            Text("Attendees")
+            Text("Attendees: \(event.attendees.count)")
                 .font(.largeTitle)
                 .bold()
             Divider()
             ScrollView {
                 VStack {
-                    ForEach(mockAttendees, id: \.self) { attendee in
-                        Text(attendee)
+                    if let attendeeUsers = attendeesUsers {
+                        ForEach(attendeeUsers, id: \.self) { attendee in
+                            Text(attendee.getFullName())
+                        }
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        ProgressView()
+                            .progressViewStyle(.circular)
                     }
                 }
-                .frame(maxWidth: .infinity)
             }
             .padding(.top, 15)
         }
@@ -59,17 +71,9 @@ struct EventDetailView: View {
         .cornerRadius(5)
 
     }
-}
 
-private let mockAttendees: [String] = [
-    "Amanda L",
-    "Alex K",
-    "Jake M",
-    "Erin N",
-    "Ronald X",
-    "Elizabeth W",
-    "Crooks L",
-    "Gerald C",
-    "Frank K",
-    "Daniel F"
-]
+    func populateAttendees() {
+        self.attendeesUsers = event.getAttendees()
+    }
+    
+}
