@@ -17,7 +17,10 @@ Organizations in use:
 - Create Admin view and prop (PlainText password) (DONE)
 - Integrate admin changes (remove, add, default) (DONE)
 - Update Add function to make empty event with default time
-- Update Modify view to edit event and view
+- Update Modify view to edit event and view (DONE)
+- Add Date to Event Model
+- Create User Object for Attendee integration
+- Add Attendees Array to Event Model
 - Make Icon and loading screen
 - Make announcements view
 - Make notification when announcement released

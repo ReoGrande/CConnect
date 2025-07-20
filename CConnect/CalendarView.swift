@@ -99,7 +99,50 @@ extension CalendarView {
             .monthLabel { ML.Center(month: $0) }
             .dayView(buildDayView)
     }
-    
+}
+
+extension CalendarView {
+    func AdminButtonView() -> some View {
+        VStack {
+            Spacer()
+            List {
+                Button {
+                    Task {
+                        print("record Events")
+                        await decodeEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Retrieve all local events") }
+                
+                Button {
+                    Task {
+                        print("Mock Events")
+                        generateMockEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Replace all events with default schedule") }
+                Button {
+                    Task {
+                        print("Encode to Database Events")
+                        encodeToNetworkEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Save schedule to server")}
+                Button {
+                    Task {
+                        print("Decode from Database Events")
+                        decodeFromNetworkEvents()
+                        adminSettingsShowing = !adminSettingsShowing
+                    }
+                } label: { Text("Retrieve newest schedule from server") }
+            }
+            .buttonStyle(.borderedProminent)
+            Spacer()
+        }
+    }
+}
+
+extension CalendarView {
     func addEvents() {
         guard let date = dateSelected else {
             print("addEvents: Failed to add event")
@@ -168,47 +211,6 @@ extension CalendarView {
         let month = utzCal.component(.month, from: Date())
         let day = utzCal.component(.day, from: Date())
         return DateComponents(calendar: utzCal, year: year, month: month, day: day).date!
-    }
-}
-
-extension CalendarView {
-    func AdminButtonView() -> some View {
-        VStack {
-            Spacer()
-            List {
-                Button {
-                    Task {
-                        print("record Events")
-                        await decodeEvents()
-                        adminSettingsShowing = !adminSettingsShowing
-                    }
-                } label: { Text("Retrieve all local events") }
-                
-                Button {
-                    Task {
-                        print("Mock Events")
-                        generateMockEvents()
-                        adminSettingsShowing = !adminSettingsShowing
-                    }
-                } label: { Text("Replace all events with default schedule") }
-                Button {
-                    Task {
-                        print("Encode to Database Events")
-                        encodeToNetworkEvents()
-                        adminSettingsShowing = !adminSettingsShowing
-                    }
-                } label: { Text("Save schedule to server")}
-                Button {
-                    Task {
-                        print("Decode from Database Events")
-                        decodeFromNetworkEvents()
-                        adminSettingsShowing = !adminSettingsShowing
-                    }
-                } label: { Text("Retrieve newest schedule from server") }
-            }
-            .buttonStyle(.borderedProminent)
-            Spacer()
-        }
     }
 }
 

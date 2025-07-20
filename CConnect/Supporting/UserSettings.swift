@@ -7,11 +7,12 @@
 
 import Foundation
 
+/// Manages user settings application wide
 class UserSettings: ObservableObject {
     
     static let shared = UserSettings()
-    // Default Value
-    @Published var mode: Mode = .admin
+    // Default Value for user mode in settings
+    @Published var mode: Mode = .user
     private init() {} // Prevent creating multiple instances
 }
 

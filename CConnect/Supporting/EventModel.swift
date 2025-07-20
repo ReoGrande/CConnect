@@ -235,6 +235,7 @@ class EventsModel: ObservableObject {
     
     // MARK: Mock Events
     /// Builds Mock Events
+    // TODO: FORCE ALWAYS START FROM CURRENT DATE
     static func MockCreateEvents(startDate: Date, _ days: Int) -> Events {
         var eventsStore: [DayEvents] = []
         
@@ -345,6 +346,7 @@ extension EventsModel {
         }
     }
     
+    // TODO: DEBUG #000000 TO WHITE WHEN RETRIEVING FROM DATABASE
     func requestAndDecodeFromDatabase(limit: UInt = 1, completion: @escaping (Events?) -> Void) { // Default to 100 most recent posts
         
         let decoder = JSONDecoder()
