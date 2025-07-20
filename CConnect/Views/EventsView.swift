@@ -14,12 +14,12 @@ extension CalendarView {
         @StateObject var eventsModel: EventsModel
         @StateObject var settingsModel: SettingsViewModel
         @State var modifiedEventName: String = ""
-        @State var modifiedEventRange: String = ""
         @State var modifiedEventColor: String = "#FFFFFF"
         @State var eventSelected: Event?
-        @State var hours: Int = 0
-        @State var minutes: Int = 0
-        @State var amPM: [String] = ["AM", "PM"]
+        @StateObject var selectedRange: TimePickerModel = TimePickerModel()
+        @State private var selectedAP1Index = 0
+        @State private var selectedAP2Index = 0
+
         
 
         var body: some View {
@@ -168,16 +168,17 @@ private extension CalendarView.EventsView {
                 VStack {
                     TextField(eventToModify.name, text: $modifiedEventName)
                         .textFieldStyle(.roundedBorder)
-                    TextField(eventToModify.range, text: $modifiedEventRange)
-                        .textFieldStyle(.roundedBorder)
                 }
                 Spacer()
             }
             .background(.ultraThinMaterial)
 
-            createTimePicker()
-                .background(.ultraThinMaterial)
+            VStack {
+                Text(updateRangeFromPicker())
+                    .background(.ultraThinMaterial)
 
+                createTimePicker()
+            }
 
             Divider()
             Picker("Event Color: ", selection: $modifiedEventColor) {
@@ -191,15 +192,15 @@ private extension CalendarView.EventsView {
             Divider()
             Button("Submit") {
                 // Can return with unedited element if all are empty
-                if !modifiedEventName.isEmpty || !modifiedEventRange.isEmpty {
-                    let modified = Event(name: modifiedEventName, range: modifiedEventRange, color: modifiedEventColor)
+                if !modifiedEventName.isEmpty {
+                    let modified = Event(name: modifiedEventName, range: selectedRange.totalRange, color: modifiedEventColor)
                     modifyEvent(day: day, event: eventToModify, modified: modified)
                 } else if modifiedEventColor != eventToModify.color.toHex() {
                     modifyEvent(day: day, event: eventToModify, modified: Event(name: eventToModify.name, range: eventToModify.range, color: modifiedEventColor))
                 }
 
                 modifiedEventName = ""
-                modifiedEventRange = ""
+                resetRangeFromPicker()
                 modifiedEventColor = ""
 
                 modifyShowing = !modifyShowing
@@ -216,46 +217,45 @@ private extension CalendarView.EventsView {
 
     func createTimePicker() -> some View {
         HStack {
-            Picker("", selection: $hours){
+            Picker("", selection: $selectedRange.startTime.hour){
                 ForEach(1..<13, id: \.self) { i in
                     Text("\(i)").tag(i)
                         .fixedSize(horizontal: true, vertical: false)
 
                 }
             }.pickerStyle(WheelPickerStyle())
-            Picker("", selection: $minutes){
-                ForEach(0..<60, id: \.self) { i in
-                    Text("\(i)").tag(i)
+            Picker("", selection: $selectedRange.startTime.minute){
+                ForEach(minutesP, id: \.self) { i in
+                    Text("\(i < 10 ? "0\(i)" : "\(i)")").tag(i)
                         .fixedSize(horizontal: true, vertical: false)
 
                 }
             }.pickerStyle(WheelPickerStyle())
-            Picker("", selection: $amPM){
-                ForEach(amPM, id: \.self) { i in
+            Picker("", selection: $selectedRange.startTime.apSelected){
+                ForEach(AMPM, id: \.self) { i in
                     Text("\(i)")
                         .fixedSize(horizontal: true, vertical: false)
-
                 }
             }.pickerStyle(WheelPickerStyle())
             
             Divider()
             
-            Picker("", selection: $hours){
+            Picker("", selection: $selectedRange.endTime.hour){
                 ForEach(1..<13, id: \.self) { i in
                     Text("\(i)").tag(i)
                         .fixedSize(horizontal: true, vertical: false)
 
                 }
             }.pickerStyle(WheelPickerStyle())
-            Picker("", selection: $minutes){
-                ForEach(0..<60, id: \.self) { i in
-                    Text("\(i)").tag(i)
+            Picker("", selection: $selectedRange.endTime.minute){
+                ForEach(minutesP, id: \.self) { i in
+                    Text("\(i < 10 ? "0\(i)" : "\(i)")").tag(i)
                         .fixedSize(horizontal: true, vertical: false)
 
                 }
             }.pickerStyle(WheelPickerStyle())
-            Picker("", selection: $amPM){
-                ForEach(amPM, id: \.self) { i in
+            Picker("", selection: $selectedRange.endTime.apSelected){
+                ForEach(AMPM, id: \.self) { i in
                     Text("\(i)")
                         .fixedSize(horizontal: true, vertical: false)
                 }
@@ -263,8 +263,22 @@ private extension CalendarView.EventsView {
 }.padding(.horizontal)
     }
 
-    func applyRangeFromPicker() -> String {
-        return ""
+    func updateRangeFromPicker() -> String {
+        let tempString = selectedRange.totalRange
+
+        return tempString
+    }
+
+    private func updateStartTimeAP(_ ap: String) {
+        selectedRange.startTime.apSelected = ap
+    }
+
+    private func updateEndTimeAP(_ ap: String) {
+        selectedRange.endTime.apSelected = ap
+    }
+    func resetRangeFromPicker() {
+        selectedRange.startTime = TimeModel()
+        selectedRange.endTime = TimeModel()
     }
 }
 
@@ -275,3 +289,5 @@ fileprivate extension [Date: [Event]] {
         return self.first(where: { $0.key.isSame(key) })?.value
     }
 }
+
+private let minutesP: [Int] = [0, 15, 30, 45]
