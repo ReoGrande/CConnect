@@ -19,6 +19,8 @@ extension CalendarView {
         @StateObject var selectedRange: TimePickerModel = TimePickerModel()
         @State private var selectedAP1Index = 0
         @State private var selectedAP2Index = 0
+        @State private var selectedEventAttendees: [User] = []
+        
 
         
 
@@ -59,9 +61,9 @@ private extension CalendarView.EventsView {
                         createColoredIndicator(event)
 
                         NavigationLink {
-                            EventDetailView(event: event)
+                            EventDetailView(event: event,attendeesUsers: $selectedEventAttendees)
                                 .task {
-                                    event
+                                    populateAttendees(event)
                                 }
                         } label: {
                             VStack(spacing: 4) {
@@ -116,6 +118,10 @@ private extension CalendarView.EventsView {
                 createEventSubtitle(event)
             }
         }
+    }
+
+    func populateAttendees(_ event: Event) {
+         selectedEventAttendees = event.getAttendees()
     }
 }
 // MARK: Event UI

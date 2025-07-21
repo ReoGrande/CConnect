@@ -72,7 +72,7 @@ struct Event: Equatable, Hashable, Codable {
     // WILL BE TRANSITIONED TO ASYNC FOR NETWORK CALLS
     func getAttendees() -> [User] {
         Helpers.mockAttendeesUsers.filter { user in
-            if let index = self.attendees.firstIndex(of: user.id) {
+            if let _ = self.attendees.firstIndex(of: user.id) {
                   return true
             }
             return false

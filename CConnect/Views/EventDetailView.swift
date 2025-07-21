@@ -10,12 +10,8 @@ import SwiftUI
 struct EventDetailView: View {
     var event: Event
 
-    @State var attendeesUsers: [User]?
+    @Binding var attendeesUsers: [User]
     // TODO: FIX POPULATING ATTENDEES FROM UUID
-    init(event: Event, attendeesUsers: [User]? = nil) {
-        self.event = event
-        populateAttendees()
-    }
 
     var body: some View {
         VStack(spacing: 25) {
@@ -52,15 +48,10 @@ struct EventDetailView: View {
             Divider()
             ScrollView {
                 VStack {
-                    if let attendeeUsers = attendeesUsers {
-                        ForEach(attendeeUsers, id: \.self) { attendee in
-                            Text(attendee.getFullName())
-                        }
-                        .frame(maxWidth: .infinity)
-                    } else {
-                        ProgressView()
-                            .progressViewStyle(.circular)
+                    ForEach(attendeesUsers, id: \.self) { attendee in
+                        Text(attendee.getFullName())
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
             .padding(.top, 15)
@@ -70,10 +61,6 @@ struct EventDetailView: View {
         .background(.ultraThinMaterial)
         .cornerRadius(5)
 
-    }
-
-    func populateAttendees() {
-        self.attendeesUsers = event.getAttendees()
     }
     
 }
