@@ -18,6 +18,8 @@ struct CalendarView: View {
     @StateObject var eventsModel: EventsModel
     @StateObject var settingsModel: SettingsViewModel
     @State private var adminSettingsShowing: Bool = false
+    @State private var daysOfSchedule: String = "90"
+    @State private var showErrorView: Bool = false
 
     var body: some View {
         VStack(spacing: 5) {
@@ -69,9 +71,7 @@ extension CalendarView {
         guard let hasSavedEvents = eventsModel.calendar.dayEvents.first(
             where: { $0.date.isSame(date) })?.day
         else { return nil }
-        
-        //        print("\(date.description) events: \(hasSavedEvents)")
-        
+
         switch hasSavedEvents.count{
         case 1:
             return .red
@@ -103,9 +103,12 @@ extension CalendarView {
 
 extension CalendarView {
     func AdminButtonView() -> some View {
-        VStack {
+        VStack(spacing: 15) {
+            Text("Admin Settings")
+                .font(.title)
+                .bold()
+            Divider()
             Spacer()
-            List {
                 Button {
                     Task {
                         print("record Events")
@@ -113,14 +116,34 @@ extension CalendarView {
                         adminSettingsShowing = !adminSettingsShowing
                     }
                 } label: { Text("Retrieve all local events") }
-                
-                Button {
-                    Task {
-                        print("Mock Events")
-                        generateMockEvents()
-                        adminSettingsShowing = !adminSettingsShowing
+                VStack {
+                    HStack {
+                        Text("Length of Schedule: ").bold()
+                        TextField("Length", text: $daysOfSchedule)
+                            .textFieldStyle(.roundedBorder)
                     }
-                } label: { Text("Replace all events with default schedule") }
+                    
+                    if showErrorView {
+                        Text("Incorrect entry, must be a positive whole number")
+                            .foregroundStyle(.red)
+                    }
+                    Button {
+                        Task {
+                            if let num = Int(daysOfSchedule), num > -1 {
+                                print("Mock Events")
+                                generateMockEvents()
+                                adminSettingsShowing = !adminSettingsShowing
+                            } else {
+                                showErrorView = !showErrorView
+                            }
+                        }
+                    } label: { Text("Replace all events with default schedule") }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(15)
+                .background(.thinMaterial)
+                .cornerRadius(5)
+            VStack {
                 Button {
                     Task {
                         print("Encode to Database Events")
@@ -136,9 +159,15 @@ extension CalendarView {
                     }
                 } label: { Text("Retrieve newest schedule from server") }
             }
-            .buttonStyle(.borderedProminent)
+            .frame(maxWidth: .infinity)
+            .padding(15)
+            .background(.thinMaterial)
+            .cornerRadius(5)
+
             Spacer()
         }
+        .padding(15)
+        .buttonStyle(.borderedProminent)
     }
 }
 
@@ -183,7 +212,8 @@ extension CalendarView {
         }
 
         DispatchQueue.main.async {
-            eventsModel.calendar = EventsModel.MockCreateEvents(startDate: date, 90)
+            guard let num = Int(daysOfSchedule) else { return }
+            eventsModel.calendar = EventsModel.MockCreateEvents(startDate: date, num)
         }
     }
 

@@ -88,7 +88,6 @@ private extension CalendarView.EventsView {
                                                     eventSelected = nil
                                                 }
                                         }
-                                    
                                 } else {
                                     Spacer()
                                 }

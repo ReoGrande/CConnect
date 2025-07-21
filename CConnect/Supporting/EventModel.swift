@@ -265,8 +265,9 @@ class EventsModel: ObservableObject {
     // TODO: FORCE ALWAYS START FROM CURRENT DATE
     static func MockCreateEvents(startDate: Date, _ days: Int) -> Events {
         var eventsStore: [DayEvents] = []
+        let actualDays = days - 1
         
-        for i in 0...days {
+        for i in 0...actualDays {
             let currentDay = startDate.add(i, .day)
             let dayDescription = MDateFormatter.getString(from: currentDay, format: "EEE")
             if DayType.isWeekDay(day: dayDescription)  {
