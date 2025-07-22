@@ -35,6 +35,9 @@ struct EventDetailView: View {
                 .buttonStyle(.borderedProminent)
             
         }
+        .task {
+
+        }
         .padding(25)
         .navigationTitle(event.name)
     }

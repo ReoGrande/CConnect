@@ -45,8 +45,11 @@ private extension CalendarView.EventsView {
         switch eventsModel.calendar.dayEvents.first(where: { dayEvents in
             dayEvents.date == selectedDate
         }) {
-            case .some(let events): createEventsList(events)
-            case .none: EmptyView()
+            case .some(let events):
+            createEventsList(events)
+            case .none:
+            
+            EmptyView()
         }
     }
 }
@@ -63,7 +66,7 @@ private extension CalendarView.EventsView {
                         NavigationLink {
                             EventDetailView(event: event,attendeesUsers: $selectedEventAttendees)
                                 .task {
-                                    populateAttendees(event)
+                                    populateAttendees(day: events.date, event: event)
                                 }
                         } label: {
                             VStack(spacing: 4) {
@@ -119,8 +122,9 @@ private extension CalendarView.EventsView {
         }
     }
 
-    func populateAttendees(_ event: Event) {
-         selectedEventAttendees = event.getAttendees()
+    func populateAttendees(day: Date, event: Event) {
+        eventsModel.calendar.setAttendeesForDayEvent(day: day, event: event)
+        selectedEventAttendees = event.attendees
     }
 }
 // MARK: Event UI

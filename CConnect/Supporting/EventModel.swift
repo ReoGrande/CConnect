@@ -12,15 +12,17 @@ import SwiftUI
 import FirebaseDatabase
 
 struct Event: Equatable, Hashable, Codable {
+    let id: UUID
     let name: String
     let range: String
     let color: Color
     let date: Date
-    var attendees: [UUID]
+    var attendees: [User]
     // TODO: ATTENDEE TYPE
     //    var attendees: Attendee
     
     enum CodingKeys: String, CodingKey {
+        case id = "id"
         case name = "name"
         case range = "range"
         case color = "color"
@@ -29,6 +31,7 @@ struct Event: Equatable, Hashable, Codable {
     }
 
     init() {
+        self.id = UUID()
         self.name = ""
         self.range = ""
         self.color = Color.white
@@ -36,16 +39,27 @@ struct Event: Equatable, Hashable, Codable {
         self.attendees = []
     }
 
-    init(name: String, range: String, color: String, date: Date = Date.now, attendees: [UUID] = []) {
+    init(id: UUID = UUID(), name: String, range: String, color: String, date: Date = Date.now, attendees: [User] = []) {
+        self.id = id
         self.name = name
         self.range = range
         self.color = Color(hexString: color) ?? Color.white
         self.date = date
         self.attendees = attendees
     }
+
+    init(id: UUID = UUID(), name: String, range: String, color: Color, date: Date = Date.now, attendees: [User] = []) {
+        self.id = id
+        self.name = name
+        self.range = range
+        self.color = color
+        self.date = date
+        self.attendees = attendees
+    }
     
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
         self.name = try container.decode(String.self, forKey: .name)
         self.range = try container.decode(String.self, forKey: .range)
         
@@ -56,11 +70,12 @@ struct Event: Equatable, Hashable, Codable {
 
         self.date = Date(timeIntervalSinceReferenceDate: dateInterval)
 
-        self.attendees = try container.decode([UUID].self, forKey: .attendees)
+        self.attendees = try container.decode([User].self, forKey: .attendees)
     }
     
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.id, forKey: .id)
         try container.encode(self.name, forKey: .name)
         try container.encode(self.range, forKey: .range)
         try container.encode(self.color.description, forKey: .color)
@@ -72,11 +87,14 @@ struct Event: Equatable, Hashable, Codable {
     // WILL BE TRANSITIONED TO ASYNC FOR NETWORK CALLS
     func getAttendees() -> [User] {
         Helpers.mockAttendeesUsers.filter { user in
-            if let _ = self.attendees.firstIndex(of: user.id) {
-                  return true
-            }
-            return false
+            user.attendanceHistory.contains(where: { eventID in
+                eventID == self.id
+            })
         }
+    }
+
+    mutating func setAttendees(attendees: [User]) {
+        self.attendees = attendees
     }
 }
 
@@ -124,6 +142,18 @@ struct DayEvents: Codable {
         guard let indexToReplace = eventIndex(event: event) else { return }
         day[indexToReplace] = replacement
     }
+
+    mutating func setAttendeesForEvent(event: Event, attendees: [User]) {
+        let newEvent = Event(id: event.id, name: event.name, range: event.range, color: event.color, date: event.date, attendees: attendees)
+        modifyEvent(event: event, replacement: newEvent)
+    }
+
+    mutating func setAttendeesForAllEvents() {
+        day.forEach { event in
+            let attendees = event.getAttendees()
+            setAttendeesForEvent(event: event, attendees: attendees)
+        }
+    }
 }
 
 struct Events: Codable {
@@ -165,6 +195,15 @@ struct Events: Codable {
         for index in dayEvents.indices {
             if day == dayEvents[index].date {
                 dayEvents[index].modifyEvent(event: eventToModify, replacement: modifiedEvent)
+                break
+            }
+        }
+    }
+
+    mutating func setAttendeesForDayEvent(day: Date, event: Event) {
+        for index in dayEvents.indices {
+            if day == dayEvents[index].date {
+                dayEvents[index].setAttendeesForAllEvents()
                 break
             }
         }
@@ -301,11 +340,11 @@ class EventsModel: ObservableObject {
         let rand = Int.random(in: 0...9)
         let colors: [String:String] = Helpers.colors
 
-        var randomAttendees: [UUID] = []
+        var randomAttendees: [User] = []
         let count = Helpers.mockAttendeesUsers.count - 1
 
         for _ in 0..<Int.random(in: 0...15) {
-            randomAttendees.append(Helpers.mockAttendeesUsers[Int.random(in: 0...count)].id)
+            randomAttendees.append(Helpers.mockAttendeesUsers[Int.random(in: 0...count)])
         }
         return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors.randomElement()?.key ?? "#FFFFFF", attendees: randomAttendees)
     }

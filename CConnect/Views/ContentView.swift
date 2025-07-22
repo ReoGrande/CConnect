@@ -25,7 +25,6 @@ struct ContentView: View {
 //                .frame(height: 100)
         }
         .ignoresSafeArea()
-        
     }
 }
 
