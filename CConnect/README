@@ -19,10 +19,16 @@ Organizations in use:
 - Update Add function to make empty event with default time
 - Update Modify view to edit event and view (DONE)
 - Create User Object for Attendee integration (DONE)
-- Add Date to Event Model
-- Add Attendees Array to Event Model
+- Add Date to Event Model (DONE)
+- Add Attendees Array to Event Model (DONE)
+- Leave events today or after (DONE)
 - Make Icon and loading screen
 - Make announcements view
 - Make notification when announcement released
+
+**REFERENCES**
+- https://medium.com/@djtyranix/offline-and-online-storage-synergy-a-swift-ios-implementation-195519582254
+- https://stackoverflow.com/questions/50790702/how-do-i-make-json-data-persistent-for-offline-use-swift-4
+
 
 

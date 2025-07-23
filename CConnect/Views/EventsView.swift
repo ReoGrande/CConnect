@@ -59,14 +59,14 @@ private extension CalendarView.EventsView {
     func createEventsList(_ events: DayEvents) -> some View {
         ScrollView {
             VStack(spacing: 16) {
-                ForEach(events.day, id: \.self) { event in
+                ForEach(events.day, id: \.id) { event in
                     HStack(spacing: 10) {
                         createColoredIndicator(event)
 
                         NavigationLink {
-                            EventDetailView(event: event,attendeesUsers: $selectedEventAttendees)
+                            createEventDetailView(event: event)
                                 .task {
-                                    populateAttendees(day: events.date, event: event)
+                                    decodeFromNetworkEvents()
                                 }
                         } label: {
                             VStack(spacing: 4) {
@@ -125,6 +125,19 @@ private extension CalendarView.EventsView {
     func populateAttendees(day: Date, event: Event) {
         eventsModel.calendar.setAttendeesForDayEvent(day: day, event: event)
         selectedEventAttendees = event.attendees
+    }
+
+    func decodeFromNetworkEvents()  {
+        DispatchQueue.main.async {
+            eventsModel.requestAndDecodeFromDatabase(limit: 1) { (retrievedEvents) in
+                 if let events = retrievedEvents {
+                     eventsModel.calendar = events
+                     // Now you can use 'events' here! Update your UI, process the data, etc.
+                 } else {
+                     print("Failed to retrieve events or no events found on remote.")
+                 }
+             }
+        }
     }
 }
 // MARK: Event UI

@@ -96,6 +96,16 @@ struct Event: Equatable, Hashable, Codable {
     mutating func setAttendees(attendees: [User]) {
         self.attendees = attendees
     }
+
+    mutating func addAttendee(attendee: User) {
+        self.attendees.append(attendee)
+    }
+
+    mutating func removeAttendee(attendee: User) {
+        self.attendees.removeAll { user in
+            user.id == attendee.id
+        }
+    }
 }
 
 struct DayEvents: Codable {
@@ -128,8 +138,12 @@ struct DayEvents: Codable {
 
     /// Returns  event index if found
     func eventIndex(event: Event) -> Int? {
-        day.firstIndex(of: event)
+        day.firstIndex { testE in
+            testE.id == event.id
+        }
     }
+    
+    //NOTES: CHECKING THE WRONG EVENT, CHECKING VAULT SESSION 1 WHEN SHOLD BE CHECKING THE NEWEST EVENT
 
     /// Deletes event if found
     mutating func deleteEvent(event: Event) {
@@ -192,8 +206,10 @@ struct Events: Codable {
     }
 
     mutating func modifyEvent(day: Date, eventToModify: Event, modifiedEvent: Event) {
+        let dateToEditString = MDateFormatter.getString(from: day, format: "d MMM y")
+
         for index in dayEvents.indices {
-            if day == dayEvents[index].date {
+            if MDateFormatter.getString(from: dayEvents[index].date, format: "d MMM y") == dateToEditString {
                 dayEvents[index].modifyEvent(event: eventToModify, replacement: modifiedEvent)
                 break
             }
@@ -218,6 +234,7 @@ class EventsModel: ObservableObject {
             do {
                 if calendar.dayEvents.count > 0 {
                     try encodeToLocal()
+                    encodeAndSendToDatabase()
                 }
             } catch {
                 print("Cannot encode to local")
@@ -336,17 +353,19 @@ class EventsModel: ObservableObject {
         EventsModel(events: EmptyEvents())
     }
     
-    static func MockEvent() -> Event {
+    static func MockEvent(date: Date = Date.now) -> Event {
         let rand = Int.random(in: 0...9)
         let colors: [String:String] = Helpers.colors
+        var tempEvent = Event(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors.randomElement()?.key ?? "#FFFFFF", date: date)
 
-        var randomAttendees: [User] = []
         let count = Helpers.mockAttendeesUsers.count - 1
 
-        for _ in 0..<Int.random(in: 0...15) {
-            randomAttendees.append(Helpers.mockAttendeesUsers[Int.random(in: 0...count)])
+        for _ in 0..<Int.random(in: 0...3) {
+            var attendee = Helpers.mockAttendeesUsers[Int.random(in: 0...count)]
+            attendee.attendanceHistory.append(tempEvent.id)
+            tempEvent.attendees.append(attendee)
         }
-        return .init(name: String(Int.random(in: 0...1000)), range: "0\(rand):30am - 0\(rand + 1):30am", color: colors.randomElement()?.key ?? "#FFFFFF", attendees: randomAttendees)
+        return tempEvent
     }
     
     static func EmptyEvents() -> Events {
@@ -421,6 +440,8 @@ extension EventsModel {
     }
     
     // TODO: DEBUG #000000 TO WHITE WHEN RETRIEVING FROM DATABASE
+    // TODO: REPLACE SPECIFIC FIELD INSTEAD OF POPULATING NEW FIELD
+    // TODO: CREATE FUNCTION FOR CREATING NEW JSON FIELD
     func requestAndDecodeFromDatabase(limit: UInt = 1, completion: @escaping (Events?) -> Void) { // Default to 100 most recent posts
         
         let decoder = JSONDecoder()

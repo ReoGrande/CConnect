@@ -13,6 +13,7 @@ import MijickCalendarView
 
 /// Builds view for `MKCalendar`
 struct CalendarView: View {
+    @EnvironmentObject var networkMonitor: NetworkMonitor
     @State private var dateRange : MDateRange? = .init()
     @State private var dateSelected : Date? = CalendarView.dateNow()
     @StateObject var eventsModel: EventsModel
@@ -56,7 +57,11 @@ struct CalendarView: View {
             Spacer()
         }
         .task {
-            eventsModel.calendar = await eventsModel.decodeFromLocal()
+            if networkMonitor.isConnected {
+                decodeFromNetworkEvents()
+            } else {
+                eventsModel.calendar = await eventsModel.decodeFromLocal()
+            }
         }
         .navigationTitle("BPVA Calendar")
     }
@@ -179,19 +184,7 @@ extension CalendarView {
         }
         
         DispatchQueue.main.async {
-            eventsModel.calendar.dayEvents = eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
-        }
-        print(date)
-    }
-
-    func deleteEvents() {
-        guard let date = dateSelected else {
-            print("deleteEvents: Failed to delete event")
-            return
-        }
-
-        DispatchQueue.main.async {
-            eventsModel.calendar.dayEvents = eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent()])
+            eventsModel.calendar.dayEvents = eventsModel.addEvents(dateToEdit: date, [EventsModel.MockEvent(date: date)])
         }
         print(date)
     }

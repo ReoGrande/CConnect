@@ -12,6 +12,8 @@ import SwiftData
 import MijickCalendarView
 
 struct ContentView: View {
+    @StateObject var networkMonitor: NetworkMonitor = NetworkMonitor()
+
     var body: some View {
         VStack {
             Spacer()
@@ -24,6 +26,13 @@ struct ContentView: View {
 //                .frame(minWidth: 0, maxWidth: .infinity)
 //                .frame(height: 100)
         }
+        .environmentObject(networkMonitor)
+        .onAppear {
+                    networkMonitor.startMonitoring()
+                }
+                .onDisappear {
+                    networkMonitor.stopMonitoring()
+                }
         .ignoresSafeArea()
     }
 }

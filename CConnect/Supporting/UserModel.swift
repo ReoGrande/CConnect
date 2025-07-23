@@ -209,6 +209,7 @@ extension UserModel {
 //        }
     }
     
+    // Not used currently, needs to store data on remote for all users for later monitoring by admin & dev
     // TODO: DEBUG #000000 TO WHITE WHEN RETRIEVING FROM DATABASE
     func requestAndDecodeFromDatabase(limit: UInt = 1, completion: @escaping (User?) -> Void) { // Default to 100 most recent posts
         guard let ref = ref else { return }
