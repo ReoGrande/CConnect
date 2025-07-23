@@ -318,7 +318,7 @@ class EventsModel: ObservableObject {
     
     // MARK: Mock Events
     /// Builds Mock Events
-    // TODO: FORCE ALWAYS START FROM CURRENT DATE
+    // TODO: SAVE EVENTS PREVIOUSLY IN EVENTS, APPEND FUNCTION TBD
     static func MockCreateEvents(startDate: Date, _ days: Int) -> Events {
         var eventsStore: [DayEvents] = []
         let actualDays = days - 1
@@ -329,14 +329,14 @@ class EventsModel: ObservableObject {
             if DayType.isWeekDay(day: dayDescription)  {
                 // Build class times
                 let eventsForDay: [Event] = [
-                    .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: "#CD2504"),
-                    .init(name: "Lift", range: "05:30pm - 06:30pm", color: "#000000"),
-                    .init(name: "Vault Session #2", range: "06:30pm - 08:30pm", color: "#CD2504")
+                    .init(name: "Vault Session #1", range: "03:30pm - 05:30pm", color: "#CD2504", date: currentDay),
+                    .init(name: "Lift", range: "05:30pm - 06:30pm", color: "#000000", date: currentDay),
+                    .init(name: "Vault Session #2", range: "06:30pm - 08:30pm", color: "#CD2504", date: currentDay)
                 ]
                 eventsStore.append(DayEvents(date: currentDay, day: eventsForDay))
             } else if DayType(rawValue: dayDescription) == .Sat {
                 // Build meet times
-                let eventsForDay: [Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: "#CD2504") ]
+                let eventsForDay: [Event] = [ .init(name: "Vault Competition", range: "10:00am - 5:00pm", color: "#CD2504", date: currentDay) ]
                 eventsStore.append(DayEvents(date: currentDay, day: eventsForDay))
             }
         }

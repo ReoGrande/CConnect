@@ -26,10 +26,21 @@ extension CalendarView.EventsView {
             createAttendeeView(event: event)
                 .frame(height: 250)
             Spacer()
-            Button("Join") {
-                joinEvent(event: event)
+            HStack {
+                if Date.now.add(-1, .day) < event.date {
+                    if isAttendee(event: event) {
+                        Button("Leave") {
+                            leaveEvent(event: event)
+                        }
+                        .buttonStyle(.bordered)
+                    } else {
+                        Button("Join") {
+                            joinEvent(event: event)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                }
             }
-                .buttonStyle(.borderedProminent)
             
         }
         .padding(25)
@@ -37,7 +48,8 @@ extension CalendarView.EventsView {
     }
 
     func joinEvent(event: Event) {
-        if !event.attendees.contains(where: { attendee in
+        if
+            !event.attendees.contains(where: { attendee in
             attendee.id == UserModel.shared.user.id
         }) {
             var newAttendees = event.attendees
@@ -56,12 +68,44 @@ extension CalendarView.EventsView {
                 
                 UserModel.shared.addEventToAttendance(modifiedEvent)
             }
-
-//            eventsModel.encodeAndSendToDatabase()
         }
     }
 
-    // TODO: INTRODUCE ATTENDEES INTO EVENT MODEL
+    func leaveEvent(event: Event) {
+        if
+            Date.now.add(-1, .day) < event.date &&
+                event.attendees.contains(
+                    where: {
+                        attendee in
+                        attendee.id == UserModel.shared.user.id
+                    }
+                ) {
+            let newAttendees = event.attendees.filter { attendee in
+                attendee.id != UserModel.shared.user.id
+            }
+
+            let modifiedEvent = Event(
+                id: event.id,
+                name: event.name,
+                range: event.range,
+                color: event.color,
+                date: event.date,
+                attendees: newAttendees)
+            
+            DispatchQueue.main.async {
+                eventsModel.calendar.modifyEvent(day: event.date, eventToModify: event, modifiedEvent: modifiedEvent)
+                
+                UserModel.shared.removeEventFromAttendance(modifiedEvent)
+            }
+        }
+    }
+
+    func isAttendee(event: Event) -> Bool {
+        event.attendees.contains { attendee in
+            attendee.id == UserModel.shared.user.id
+        }
+    }
+
     func createAttendeeView(event: Event) -> some View {
         VStack {
             Text("Attendees: \(event.attendees.count)")

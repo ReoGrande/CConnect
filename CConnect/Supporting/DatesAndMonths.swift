@@ -60,15 +60,22 @@ extension DV.ColoredCircle {
             .fill(.clear)
             .strokeBorder(.placeholder, lineWidth: 1)
             .transition(.asymmetric(insertion: .scale(scale: 0.5).combined(with: .opacity), removal: .opacity))
-            .active(if: isSelected() && !isPast())
+            .active(if: isSelected())
             .erased()
     }
 }
 private extension DV.ColoredCircle {
     func createDayLabelBackground() -> some View {
-        Circle()
-            .fill(isSelected() ? Color(hexString: "#FFD700")! : color ?? .clear)
-            .padding(4)
+        // When circle is of a date that is before current day, have a lower opacity
+           Circle()
+                .fill(
+                    (isSelected() ? Color(hexString: "#F3BD12")!.opacity(0.5) : isToday() ? Color(hexString: "#F3BD12")! :
+                        (isPast() ?
+                         (color?.opacity(0.3) ?? .clear): color ?? .clear
+                        )
+                    )
+                )
+                .padding(4)
     }
     func createDayLabelText() -> some View  {
         Text(getStringFromDay(format: "d"))
@@ -99,7 +106,7 @@ private extension DV.ColoredCircle {
 // MARK: - On Selection Logic
 extension DV.ColoredCircle {
     func onSelection() {
-        if !isPast() { selectedDate?.wrappedValue = date }
+        selectedDate?.wrappedValue = date
     }
 }
 

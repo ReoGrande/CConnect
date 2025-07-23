@@ -218,10 +218,10 @@ private extension CalendarView.EventsView {
             Button("Submit") {
                 // Can return with unedited element if all are empty
                 if !modifiedEventName.isEmpty {
-                    let modified = Event(name: modifiedEventName, range: selectedRange.totalRange, color: modifiedEventColor)
+                    let modified = Event(id: eventToModify.id, name: modifiedEventName, range: selectedRange.totalRange, color: modifiedEventColor, date: day, attendees: eventToModify.attendees)
                     modifyEvent(day: day, event: eventToModify, modified: modified)
                 } else if modifiedEventColor != eventToModify.color.toHex() {
-                    modifyEvent(day: day, event: eventToModify, modified: Event(name: eventToModify.name, range: eventToModify.range, color: modifiedEventColor))
+                    modifyEvent(day: day, event: eventToModify, modified: Event(id: eventToModify.id, name: eventToModify.name, range: eventToModify.range, color: modifiedEventColor, date: day, attendees: eventToModify.attendees))
                 }
 
                 modifiedEventName = ""
