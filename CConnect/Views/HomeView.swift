@@ -70,13 +70,16 @@ extension HomeView {
         
         var body: some View {
             NavigationStack {
-                VStack(spacing: 25) {
+                VStack(spacing: 15) {
+                    VStack {
                         Text("Buckeye Pole Vault Academy")
-                            .font(.largeTitle)
+                            .font(.title)
                             .bold()
                             .fixedSize(horizontal: false, vertical: true)
-                    Divider()
-                    Spacer()
+                        
+                        Divider()
+                    }
+                    .padding(.vertical, 25)
                         if userModel.user.isSignedin() {
                             Text("Hello \(userModel.user.firstName)!")
                                 .font(.title3)
