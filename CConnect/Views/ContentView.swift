@@ -13,28 +13,31 @@ import MijickCalendarView
 
 struct ContentView: View {
     @StateObject var networkMonitor: NetworkMonitor = NetworkMonitor()
+    @ObservedObject var userModel: UserModel = UserModel.shared
 
     var body: some View {
-        VStack {
-            Spacer()
-            NavigationStack {
-                HomeView()
+        ZStack {
+            Color(hexString: "#000000")!
+                .opacity(0.05)
+                .ignoresSafeArea()
+            VStack {
+                HomeView(userModel: userModel)
+                // TODO: ADD IN BOTTOM NAVIGATION BAR TO REPLACE HOMEVIEW
             }
-            Spacer()
-// TODO: ADD IN BOTTOM NAVIGATION BAR TO REPLACE HOMEVIEW
-//            Color.black
-//                .frame(minWidth: 0, maxWidth: .infinity)
-//                .frame(height: 100)
+            .environmentObject(networkMonitor)
+            .onAppear {
+                networkMonitor.startMonitoring()
+            }
+            .onDisappear {
+                networkMonitor.stopMonitoring()
+            }
+            .task {
+                await userModel.decodeFromLocal()
+            }
+            .ignoresSafeArea()
         }
-        .environmentObject(networkMonitor)
-        .onAppear {
-                    networkMonitor.startMonitoring()
-                }
-                .onDisappear {
-                    networkMonitor.stopMonitoring()
-                }
-        .ignoresSafeArea()
     }
+
 }
 
 #Preview {

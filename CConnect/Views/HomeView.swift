@@ -9,8 +9,55 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
+    @ObservedObject var userModel: UserModel
+    @State var name: [String] = ["",""]
+    @State var errorMessage: Bool = false
+
     var body: some View {
-        ButtonsView()
+        if userModel.user.isSignedin() {
+            ButtonsView(userModel: userModel)
+        } else {
+            VStack(spacing: 25) {
+                Text("Buckeye Pole Vault Academy")
+                    .font(.largeTitle)
+                    .bold()
+                Spacer()
+                VStack {
+                    Text("Enter first and last name:")
+                        .foregroundStyle(.secondary)
+                        .font(.title2)
+                    HStack {
+                        TextField("First Name", text: $name[0])
+                            .textFieldStyle(.roundedBorder)
+                        TextField("Last Name", text: $name[1])
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    .padding(25)
+                    if errorMessage {
+                        Text("Please enter first name and last name")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    } else {
+                        Text(" ")
+                            .font(.caption)
+                    }
+                }
+                Button("Submit") {
+                    if !name[0].isEmpty && !name[1].isEmpty {
+                        DispatchQueue.main.async {
+                            userModel.setUserName(first: name[0], last: name[1])
+                        }
+                        print(userModel.user.getFullName())
+                    } else {
+                        errorMessage = true
+                    }
+                }
+                .buttonStyle(.bordered)
+                Spacer()
+            }
+            .padding(25)
+            .padding(.vertical, 50)
+        }
     }
 }
 
@@ -18,72 +65,66 @@ extension HomeView {
     struct ButtonsView: View {
         @Environment(\.openURL) var openURL
         @ObservedObject var settingsModel: SettingsViewModel = SettingsViewModel()
-        @ObservedObject var userModel: UserModel = UserModel.shared
+        @ObservedObject var userModel: UserModel
         @ObservedObject private var eventsModel: EventsModel = EventsModel()
-        @State var name: [String] = ["",""]
         
         var body: some View {
-            VStack(spacing: 25) {
-                Spacer()
-                HStack {
-                    Spacer()
-                    NavigationLink {
-                        Text("Announcements")
-                    } label: {
-                        Text("Announcements")
-                    }
-                    Spacer()
-                    NavigationLink {
-                        CalendarView(eventsModel: eventsModel, settingsModel: settingsModel)
-                    } label: {
-                        Text("BPVA Calendar")
-                    }
-                    Spacer()
-                }
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button("Visit BPVA Online") {
-                        openURL(URL(string: "https://www.buckeyepolevaultacademy.com/")!)
-                    }
-                    Spacer()
-                    NavigationLink {
-                        SettingsView(settingsModel: settingsModel)
-                    } label: {
-                        Text("Settings")
-                    }
-                    Spacer()
-                }
-                VStack(spacing: 15) {
-                    Text("Enter First and Last name")
-                    HStack {
-                        TextField("First Name", text: $name[0])
-                        TextField("Last Name", text: $name[1])
-                    }
-                    .padding(15)
-                    Button("Submit") {
-                        if !name[0].isEmpty && !name[1].isEmpty {
-                            userModel.setUserName(first: name[0], last: name[1])
-                            print(userModel.user.getFullName())
-                        }
-                    }
-
-                    if !userModel.user.getFullName().isEmpty {
-                        Text("Hello \(userModel.user.getFullName())")
+            NavigationStack {
+                VStack(spacing: 25) {
+                        Text("Buckeye Pole Vault Academy")
+                            .font(.largeTitle)
                             .bold()
+                            .fixedSize(horizontal: false, vertical: true)
+                    Divider()
+                    Spacer()
+                        if userModel.user.isSignedin() {
+                            Text("Hello \(userModel.user.firstName)!")
+                                .font(.title3)
+                                .foregroundStyle(.secondary)
+                                .bold()
+                        }
+                        else {
+                            EmptyView()
+                        }
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        NavigationLink {
+                            Text("Announcements")
+                        } label: {
+                            Text("Announcements")
+                        }
+                        Spacer()
+                        NavigationLink {
+                            CalendarView(eventsModel: eventsModel, settingsModel: settingsModel)
+                        } label: {
+                            Text("BPVA Calendar")
+                        }
+                        Spacer()
                     }
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button("Visit BPVA Online") {
+                            openURL(URL(string: "https://www.buckeyepolevaultacademy.com/")!)
+                        }
+                        Spacer()
+                        NavigationLink {
+                            SettingsView(settingsModel: settingsModel)
+                        } label: {
+                            Text("Settings")
+                        }
+                        Spacer()
+                    }
+                    Spacer()
                 }
-                Spacer()
-            }
-            .frame(minHeight: 25, maxHeight: 50)
-            .task {
-                await userModel.decodeFromLocal()
+                .padding(.vertical,15)
             }
         }
     }
 }
 
 #Preview {
-    HomeView()
+    HomeView(userModel: UserModel.shared)
 }
 

@@ -48,10 +48,14 @@ struct User: Equatable, Hashable, Codable {
          }
          return ""
     }
+
+    func isSignedin() -> Bool {
+        !self.getFullName().isEmpty
+    }
 }
 
 class UserModel: ObservableObject {
-    private(set) var user: User = User() {
+    @Published private(set) var user: User = User() {
         didSet {
             do {
                 try encodeToLocal()
@@ -118,7 +122,9 @@ extension UserModel {
             let (data, _) = try await URLSession.shared.data(from: url)
             let userData = try decoder.decode(User.self, from: data)
             
-            self.user = userData
+            DispatchQueue.main.async {
+                self.user = userData
+            }
         } catch {
             print(error.localizedDescription)
         }
@@ -255,4 +261,8 @@ extension UserModel {
                 print("Error fetching last user post: \(error.localizedDescription)")
             }
     }
+}
+
+extension UserModel: Sendable {
+    
 }
